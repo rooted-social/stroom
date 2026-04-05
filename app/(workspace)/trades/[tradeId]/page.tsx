@@ -15,7 +15,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeImage } from "@/types/trade-image";
 import { type TradeRecord } from "@/types/trade";
 import { parseScenarioChecklistText } from "@/utils/scenario-checklist";
-import { getReturnRateFromTrade } from "@/utils/trade-metrics";
+import {
+  calculateReturnRate,
+  getReturnRateFromTrade,
+  inferPosition,
+  parseNumberFromText,
+} from "@/utils/trade-metrics";
 import { decodeTradeFormMeta } from "@/utils/trade-form";
 import { linkButtonClass } from "@/utils/button-styles";
 
@@ -42,6 +47,14 @@ function formatPriceDisplay(value: number | null, fallback: string | undefined) 
 function hasMeaningfulValue(value: string) {
   const normalized = value.trim();
   return normalized.length > 0 && normalized !== "-" && normalized !== "미입력";
+}
+
+function formatRiskRewardRatio(value: number | null) {
+  if (value === null || !Number.isFinite(value) || value <= 0) {
+    return "-";
+  }
+
+  return `${value.toFixed(2)}:1`;
 }
 
 export default async function TradeDetailPage({
@@ -97,6 +110,70 @@ export default async function TradeDetailPage({
   const statusDisplay =
     trade.status === "open" ? "진행중" : trade.status === "closed" ? "종료" : "임시저장";
   const modeDisplay = trade.mode === "pre" ? "시나리오" : "매매일지";
+  const isScenarioBeforeClose = trade.mode === "pre" && trade.status === "open";
+  const positionForCalc = inferPosition(trade);
+  const entryPriceForCalc =
+    trade.entry_price !== null && Number.isFinite(trade.entry_price)
+      ? Number(trade.entry_price)
+      : tradeMeta?.entryPrice
+        ? parseNumberFromText(tradeMeta.entryPrice)
+        : null;
+  const targetPriceForCalc =
+    trade.exit_price !== null && Number.isFinite(trade.exit_price)
+      ? Number(trade.exit_price)
+      : tradeMeta?.exitPrice
+        ? parseNumberFromText(tradeMeta.exitPrice)
+        : null;
+  const stopPriceForCalc =
+    trade.stop_loss !== null && Number.isFinite(trade.stop_loss)
+      ? Number(trade.stop_loss)
+      : tradeMeta?.stopPrice
+        ? parseNumberFromText(tradeMeta.stopPrice)
+        : null;
+  const leverageForCalc =
+    trade.leverage !== null && Number.isFinite(trade.leverage)
+      ? Number(trade.leverage)
+      : tradeMeta?.leverage
+        ? Number(tradeMeta.leverage)
+        : 1;
+  const normalizedLeverage =
+    Number.isFinite(leverageForCalc) && leverageForCalc > 0 ? leverageForCalc : 1;
+  const predictedTargetPnl = calculateReturnRate(
+    entryPriceForCalc,
+    targetPriceForCalc,
+    positionForCalc,
+    normalizedLeverage,
+  );
+  const predictedStopPnl = calculateReturnRate(
+    entryPriceForCalc,
+    stopPriceForCalc,
+    positionForCalc,
+    normalizedLeverage,
+  );
+  const rewardDistance =
+    positionForCalc === "LONG"
+      ? targetPriceForCalc !== null && entryPriceForCalc !== null
+        ? targetPriceForCalc - entryPriceForCalc
+        : null
+      : entryPriceForCalc !== null && targetPriceForCalc !== null
+        ? entryPriceForCalc - targetPriceForCalc
+        : null;
+  const riskDistance =
+    positionForCalc === "LONG"
+      ? entryPriceForCalc !== null && stopPriceForCalc !== null
+        ? entryPriceForCalc - stopPriceForCalc
+        : null
+      : stopPriceForCalc !== null && entryPriceForCalc !== null
+        ? stopPriceForCalc - entryPriceForCalc
+        : null;
+  const riskRewardRatio =
+    rewardDistance !== null &&
+    riskDistance !== null &&
+    rewardDistance > 0 &&
+    riskDistance > 0
+      ? rewardDistance / riskDistance
+      : null;
+  const riskRewardDisplay = formatRiskRewardRatio(riskRewardRatio);
   const pnlDisplay =
     calculatedPnl === null
       ? trade.result || "-"
@@ -122,7 +199,9 @@ export default async function TradeDetailPage({
   const memoText = (parsedChecklist.memoText ?? "").trim();
   const reviewText = (trade.review ?? "").trim();
   const hasSymbol = symbolText.length > 0;
-  const hasPnl = hasMeaningfulValue(pnlDisplay);
+  const hasPnl = isScenarioBeforeClose
+    ? predictedTargetPnl !== null || predictedStopPnl !== null
+    : hasMeaningfulValue(pnlDisplay);
   const hasHoldingTime = hasMeaningfulValue(holdingTimeDisplay);
   const hasEntryPrice = hasMeaningfulValue(entryPriceDisplay);
   const hasExitPrice = hasMeaningfulValue(exitPriceDisplay);
@@ -133,6 +212,7 @@ export default async function TradeDetailPage({
   const hasChecklist = showScenarioPreChecklist && checklistItems.length > 0;
   const hasMemo = memoText.length > 0;
   const hasReview = reviewText.length > 0;
+  const hasRiskReward = hasMeaningfulValue(riskRewardDisplay);
 
   return (
     <section>
@@ -422,28 +502,56 @@ export default async function TradeDetailPage({
 
           <section className="mt-2">
             <h2 className="mb-1.5 text-sm font-semibold text-zinc-900 dark:text-zinc-100">기본 정보</h2>
-            <div className="grid gap-2 sm:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-4">
               {hasSymbol ? (
                 <article className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900/40">
                   <p className="text-[11px] text-zinc-500 dark:text-zinc-400">종목명(Symbol)</p>
-                  <p className="mt-0.5 text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                  <p className="mt-0.5 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
                     {symbolText}
                   </p>
                 </article>
               ) : null}
               {hasPnl ? (
                 <article className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900/40">
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">손익률 (P&L)</p>
-                  <p
-                    className={`mt-0.5 text-base font-semibold tracking-tight ${
-                      calculatedPnl === null
-                        ? "text-zinc-900 dark:text-zinc-100"
-                        : calculatedPnl >= 0
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-rose-600 dark:text-rose-400"
-                    }`}
-                  >
-                    {pnlDisplay}
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    {isScenarioBeforeClose ? "예상 손익률 (Predicted P&L)" : "손익률 (P&L)"}
+                  </p>
+                  {isScenarioBeforeClose ? (
+                    <p className="mt-0.5 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        {predictedTargetPnl === null
+                          ? "+00.00%"
+                          : `${predictedTargetPnl >= 0 ? "+" : ""}${predictedTargetPnl.toFixed(2)}%`}{" "}
+                        (예정)
+                      </span>{" "}
+                      /{" "}
+                      <span className="text-rose-600 dark:text-rose-400">
+                        {predictedStopPnl === null
+                          ? "-00.00%"
+                          : `${predictedStopPnl >= 0 ? "+" : ""}${predictedStopPnl.toFixed(2)}%`}{" "}
+                        (예정)
+                      </span>
+                    </p>
+                  ) : (
+                    <p
+                      className={`mt-0.5 text-base font-semibold tracking-tight ${
+                        calculatedPnl === null
+                          ? "text-zinc-900 dark:text-zinc-100"
+                          : calculatedPnl >= 0
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-rose-600 dark:text-rose-400"
+                      }`}
+                    >
+                      {pnlDisplay}
+                    </p>
+                  )}
+                </article>
+              ) : null}
+              {hasRiskReward ? (
+                <article className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900/40">
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">손익비</p>
+                  <p className="mt-0.5 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                    {riskRewardDisplay}
                   </p>
                 </article>
               ) : null}

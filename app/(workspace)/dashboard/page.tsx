@@ -160,6 +160,8 @@ export default async function DashboardPage() {
     .map((trade) => ({
       id: trade.id,
       symbol: trade.symbol,
+      mode: trade.mode,
+      status: trade.status,
       position: trade.position ?? "-",
       date: trade.trade_date ?? trade.created_at,
       rate: getReturnRateFromTrade(trade),
@@ -344,6 +346,9 @@ export default async function DashboardPage() {
               <p className="text-sm text-zinc-500">아직 기록된 매매가 없습니다.</p>
             ) : (
               recentTrades.map((trade) => (
+                (() => {
+                  const isOngoingScenario = trade.mode === "pre" && trade.status === "open";
+                  return (
                 <div
                   key={trade.id}
                   className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 transition-all duration-200 hover:-translate-y-0.5 dark:border-zinc-800 dark:bg-zinc-900/70"
@@ -357,13 +362,23 @@ export default async function DashboardPage() {
                     </div>
                     <p
                       className={`text-sm font-semibold ${
-                        (trade.rate ?? 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                        isOngoingScenario
+                          ? "text-sky-600 dark:text-sky-400"
+                          : (trade.rate ?? 0) >= 0
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
-                      {trade.rate === null ? "-" : formatPercent(trade.rate)}
+                      {isOngoingScenario
+                        ? "시나리오 진행 중"
+                        : trade.rate === null
+                          ? "-"
+                          : formatPercent(trade.rate)}
                     </p>
                   </div>
                 </div>
+                  );
+                })()
               ))
             )}
           </div>

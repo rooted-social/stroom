@@ -52,7 +52,6 @@ export function TradesListSkeleton({ trades }: TradesListSkeletonProps) {
                   ? null
                   : parseNumberFromText(trade.result);
           const returnRate = getReturnRateFromTrade(trade);
-          const isOpenTrade = trade.status === "open";
           const isOngoingScenario = trade.mode === "pre" && trade.status === "open";
           const tradeDateText = trade.trade_date
             ? formatDateLabel(trade.trade_date)
@@ -68,8 +67,8 @@ export function TradesListSkeleton({ trades }: TradesListSkeletonProps) {
               aria-label={`${trade.symbol} 상세 페이지 이동`}
               className={[
                 "block cursor-pointer rounded-xl border bg-white px-4 py-2.5 transition-all duration-200 hover:border-zinc-300 hover:bg-zinc-50/70 dark:bg-[#101317] dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60",
-                isOpenTrade
-                  ? "border-emerald-300 shadow-[0_0_0_1px_rgba(16,185,129,0.18)] dark:border-emerald-700"
+                isOngoingScenario
+                  ? "border-sky-300 shadow-[0_0_0_1px_rgba(14,165,233,0.2)] dark:border-sky-700"
                   : "border-zinc-200 dark:border-zinc-800",
               ].join(" ")}
             >
@@ -96,7 +95,7 @@ export function TradesListSkeleton({ trades }: TradesListSkeletonProps) {
                       {holdingTimeText || "홀딩 미입력"}
                     </span>
                     {!holdingTimeText && trade.mode === "pre" ? (
-                      <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] dark:bg-zinc-800">
+                      <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] text-sky-700 dark:bg-sky-900/20 dark:text-sky-300">
                         진행중 시나리오
                       </span>
                     ) : null}
@@ -127,7 +126,9 @@ export function TradesListSkeleton({ trades }: TradesListSkeletonProps) {
                 <p
                   className={[
                     "hidden text-sm font-semibold md:block",
-                    isOngoingScenario || returnRate === null
+                    isOngoingScenario
+                      ? "text-sky-600 dark:text-sky-400"
+                      : returnRate === null
                       ? "text-zinc-500 dark:text-zinc-400"
                       : returnRate >= 0
                         ? "text-emerald-600 dark:text-emerald-400"
@@ -175,7 +176,9 @@ export function TradesListSkeleton({ trades }: TradesListSkeletonProps) {
                   <p
                     className={[
                       "font-semibold",
-                      isOngoingScenario || returnRate === null
+                      isOngoingScenario
+                        ? "text-sky-600 dark:text-sky-400"
+                        : returnRate === null
                         ? "text-zinc-500 dark:text-zinc-400"
                         : returnRate >= 0
                           ? "text-emerald-600 dark:text-emerald-400"

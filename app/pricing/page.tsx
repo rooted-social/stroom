@@ -4,26 +4,13 @@ import { LandingNavbar } from "@/components/templates/landing-navbar"
 
 const plans = [
   {
-    name: "Starter",
-    price: "₩0",
-    unit: "/월",
-    description: "개인 학습 및 루틴 정착을 위한 기본 플랜",
-    features: ["매매 기록 100건", "기본 복기 리포트", "기본 시나리오 템플릿"],
-  },
-  {
     name: "Pro",
+    originalPrice: "₩33,000",
     price: "₩19,000",
     unit: "/월",
-    description: "실전 트레이더를 위한 분석 중심 플랜",
-    features: ["무제한 매매 기록", "심화 성과 분석", "사용자 설정 체크리스트", "우선 지원"],
+    description: "실전 트레이더를 위한 분석 중심 단일 플랜",
+    features: ["무제한 매매 기록", "시나리오 매매", "성과 및 수익 분석", "사용자 설정 체크리스트"],
     recommended: true,
-  },
-  {
-    name: "Team",
-    price: "문의",
-    unit: "",
-    description: "트레이딩 팀/커뮤니티 운영을 위한 협업 플랜",
-    features: ["워크스페이스 공유", "운영자 권한 관리", "맞춤 온보딩", "전담 지원"],
   },
 ]
 
@@ -38,28 +25,36 @@ export default async function PricingPage() {
           <header className="text-center">
             <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Pricing</p>
             <h1 className="mt-3 font-heading text-3xl tracking-tight text-hero-heading sm:text-4xl">
-              팀 규모와 숙련도에 맞는 요금제
+              단 하나의 실전형 요금제
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base">
-              먼저 무료로 시작하고, 기록량과 분석 깊이에 맞춰 유연하게 확장할 수 있습니다.
+              복잡한 플랜 비교 없이, 핵심 기능을 합리적인 가격으로 시작하세요.
             </p>
           </header>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="relative mx-auto mt-10 max-w-xl">
+            <div className="pointer-events-none absolute inset-x-8 -top-12 -z-10 h-56 rounded-full bg-[radial-gradient(circle,rgba(58,123,191,0.34),transparent_68%)] blur-3xl" />
             {plans.map((plan) => (
               <article
                 key={plan.name}
-                className={`rounded-3xl p-6 ${
+                className={`relative overflow-hidden rounded-3xl p-7 ${
                   plan.recommended ? "border border-[#6EA9DD]/60 bg-[#3A7BBF]/12" : "liquid-glass"
                 }`}
               >
-                {plan.recommended ? (
-                  <p className="mb-3 inline-flex rounded-full bg-[#3A7BBF]/30 px-3 py-1 text-xs font-semibold text-[#B7D8F2]">
-                    추천
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(110,169,221,0.2),transparent_58%)]" />
+                <div className="mb-3 flex items-center justify-between">
+                  {plan.recommended ? (
+                    <p className="inline-flex rounded-full bg-[#3A7BBF]/30 px-3 py-1 text-xs font-semibold text-[#B7D8F2]">
+                      추천
+                    </p>
+                  ) : null}
+                  <p className="inline-flex rounded-full border border-rose-300/60 bg-rose-100/70 px-3 py-1 text-xs font-semibold text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-300">
+                    초기 유저 한정 혜택
                   </p>
-                ) : null}
+                </div>
                 <h2 className="text-2xl font-semibold text-foreground">{plan.name}</h2>
                 <p className="mt-2 text-sm text-foreground/70">{plan.description}</p>
+                <p className="mt-5 text-sm text-foreground/50 line-through">{plan.originalPrice}</p>
                 <p className="mt-6 text-3xl font-semibold text-hero-heading">
                   {plan.price}
                   <span className="ml-1 text-base font-medium text-foreground/65">{plan.unit}</span>

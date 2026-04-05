@@ -26,29 +26,39 @@ export default async function TradesPage({ searchParams }: TradesPageProps) {
   const parsedPage = Number(page ?? "1");
   const requestedPage = Number.isFinite(parsedPage) && parsedPage > 0 ? Math.floor(parsedPage) : 1;
 
-  const { count: totalTradesCount } = await supabase
-    .from("trades")
-    .select("id", { head: true, count: "exact" });
-
-  const totalCount = totalTradesCount ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / TRADES_PER_PAGE));
-  const currentPage = Math.min(requestedPage, totalPages);
-  const startIndex = (currentPage - 1) * TRADES_PER_PAGE;
-  const endIndex = startIndex + TRADES_PER_PAGE - 1;
-
-  const { data: tradesData, error: tradesError } = await supabase
+  const { data: allTradesData, error: tradesError } = await supabase
     .from("trades")
     .select("*")
     .order("trade_date", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .range(startIndex, endIndex);
+    .order("created_at", { ascending: false });
 
   const { data: statsTradesData } = await supabase
     .from("trades")
     .select("*");
 
-  const trades = (tradesData ?? []) as TradeRecord[];
-  const statsTrades = (statsTradesData ?? tradesData ?? []) as TradeRecord[];
+  const allTrades = (allTradesData ?? []) as TradeRecord[];
+  const sortedTrades = [...allTrades].sort((a, b) => {
+    const aIsOngoingScenario = a.mode === "pre" && a.status === "open";
+    const bIsOngoingScenario = b.mode === "pre" && b.status === "open";
+    if (aIsOngoingScenario !== bIsOngoingScenario) {
+      return aIsOngoingScenario ? -1 : 1;
+    }
+
+    const aBaseDate = a.trade_date ?? a.created_at.slice(0, 10);
+    const bBaseDate = b.trade_date ?? b.created_at.slice(0, 10);
+    if (aBaseDate !== bBaseDate) {
+      return bBaseDate.localeCompare(aBaseDate);
+    }
+
+    return b.created_at.localeCompare(a.created_at);
+  });
+  const totalCount = sortedTrades.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / TRADES_PER_PAGE));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const startIndex = (currentPage - 1) * TRADES_PER_PAGE;
+  const endIndex = startIndex + TRADES_PER_PAGE - 1;
+  const trades = sortedTrades.slice(startIndex, endIndex + 1);
+  const statsTrades = (statsTradesData ?? allTradesData ?? []) as TradeRecord[];
   const closedTrades = statsTrades.filter((trade) => trade.status === "closed");
 
   const closedResults = closedTrades

@@ -4,16 +4,12 @@ import { LandingNavbar } from "@/components/templates/landing-navbar"
 
 const contactItems = [
   {
-    title: "도입 상담",
-    description: "팀 온보딩, 워크플로우 구성, 권한 정책까지 함께 설계합니다.",
+    title: "기능 제안",
+    description: "실제 트레이딩 루틴에 필요한 기능 아이디어를 보내주시면 우선순위를 검토해 반영합니다.",
   },
   {
     title: "요금 문의",
-    description: "사용자 수, 기능 범위, 데이터 보관 정책 기준으로 안내드립니다.",
-  },
-  {
-    title: "기능 제안",
-    description: "실제 매매 루틴에 필요한 기능 요청을 받고 로드맵에 반영합니다.",
+    description: "플랜 구성, 할인 적용, 결제 방식 등 요금 관련 질문을 빠르게 안내해드립니다.",
   },
 ]
 
@@ -28,14 +24,14 @@ export default async function ContactPage() {
           <header className="text-center">
             <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Contact</p>
             <h1 className="mt-3 font-heading text-3xl tracking-tight text-hero-heading sm:text-4xl">
-              도입과 운영을 함께 설계해 드립니다
+              고객 문의
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base">
-              빠르게 검토 후 답변드릴 수 있도록 문의 목적과 현재 운영 방식을 간단히 알려주세요.
+              문의 내용을 메일로 남겨주시면 확인 후 빠르게 답변드리겠습니다.
             </p>
           </header>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <div className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-2">
             {contactItems.map((item) => (
               <article key={item.title} className="liquid-glass rounded-2xl p-6">
                 <h2 className="text-xl font-semibold text-foreground">{item.title}</h2>
@@ -44,17 +40,21 @@ export default async function ContactPage() {
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl border border-[#6EA9DD]/50 bg-[#3A7BBF]/12 p-6 text-center sm:p-8">
+          <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-[#6EA9DD]/50 bg-[#3A7BBF]/12 p-6 text-center sm:p-8">
             <p className="text-sm text-foreground/75">빠른 문의</p>
             <p className="mt-2 text-xl font-semibold text-hero-heading sm:text-2xl">hello@stroom.app</p>
+            <p className="mt-2 text-xs text-foreground/65">기능 제안 / 요금 문의를 메일로 보내주세요.</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/signup"
+              <a
+                href="mailto:hello@stroom.app"
                 className="rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-5 py-3 text-sm font-semibold text-white hover:opacity-90"
               >
-                회원가입 후 시작하기
-              </Link>
-              <Link href="/pricing" className="liquid-glass rounded-full px-5 py-3 text-sm text-foreground hover:bg-white/5">
+                메일로 문의하기
+              </a>
+              <Link
+                href="/pricing"
+                className="liquid-glass rounded-full px-5 py-3 text-sm text-foreground hover:bg-white/5"
+              >
                 요금제 확인하기
               </Link>
             </div>
