@@ -6,7 +6,7 @@ import { type TradeImage } from "@/types/trade-image";
 
 type Params = {
   imageId: string;
-  variant: "thumb" | "full";
+  variant: string;
 };
 
 export async function GET(
@@ -77,7 +77,8 @@ export async function GET(
 
     if (typeof body.transformToByteArray === "function") {
       const bytes = await body.transformToByteArray();
-      return new NextResponse(bytes, {
+      const normalizedBytes = new Uint8Array(bytes);
+      return new NextResponse(normalizedBytes, {
         headers: {
           "Content-Type": contentType,
           "Cache-Control": cacheControl,
