@@ -1,0 +1,31 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" rx="32" fill="#070B14"/>
+  <rect x="42" y="42" width="1516" height="816" rx="24" fill="#0B1220" stroke="#1E2A3D" stroke-width="2"/>
+  <rect x="82" y="102" width="1436" height="58" rx="16" fill="#111C30"/>
+  <rect x="104" y="122" width="320" height="18" rx="9" fill="#76AEE0"/>
+  <circle cx="1412" cy="131" r="10" fill="#2B3F5F"/>
+  <circle cx="1448" cy="131" r="10" fill="#2B3F5F"/>
+  <circle cx="1484" cy="131" r="10" fill="#2B3F5F"/>
+  <rect x="82" y="186" width="306" height="632" rx="18" fill="#0E1829" stroke="#1C2C44"/>
+  <rect x="108" y="220" width="254" height="40" rx="12" fill="#173863"/>
+  <rect x="108" y="282" width="220" height="14" rx="7" fill="#324A6A"/>
+  <rect x="108" y="312" width="246" height="14" rx="7" fill="#263A56"/>
+  <rect x="108" y="342" width="202" height="14" rx="7" fill="#263A56"/>
+  <rect x="430" y="186" width="1088" height="280" rx="22" fill="url(#paint0_linear_190_2)"/>
+  <rect x="472" y="248" width="650" height="28" rx="14" fill="#D7E7F7"/>
+  <rect x="472" y="294" width="420" height="18" rx="9" fill="#9FBBD8"/>
+  <rect x="430" y="492" width="668" height="326" rx="18" fill="#0F1A2C" stroke="#1F334E"/>
+  <rect x="458" y="530" width="240" height="16" rx="8" fill="#B4D4F0"/>
+  <rect x="458" y="564" width="560" height="12" rx="6" fill="#304A69"/>
+  <rect x="458" y="592" width="502" height="12" rx="6" fill="#273E5B"/>
+  <rect x="1120" y="492" width="398" height="326" rx="18" fill="#0F1A2C" stroke="#1F334E"/>
+  <rect x="1148" y="530" width="184" height="16" rx="8" fill="#B4D4F0"/>
+  <rect x="1148" y="568" width="312" height="98" rx="12" fill="#173863"/>
+  <rect x="1148" y="684" width="312" height="98" rx="12" fill="#152E4F"/>
+  <defs>
+    <linearGradient id="paint0_linear_190_2" x1="430" y1="186" x2="1518" y2="466" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F2E4F"/>
+      <stop offset="1" stop-color="#1F6FB8"/>
+    </linearGradient>
+  </defs>
+</svg>
