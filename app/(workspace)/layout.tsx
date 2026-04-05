@@ -48,7 +48,7 @@ export default async function WorkspaceLayout({
               </div>
               <div className="flex items-center gap-2">
                 <ThemeToggle />
-                <form action={logoutAction}>
+                <form action={logoutAction} className="hidden sm:block">
                   <SubmitButton
                     label="로그아웃"
                     pendingLabel="로그아웃 중..."

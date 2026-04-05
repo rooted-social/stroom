@@ -47,7 +47,7 @@ export function LandingVisionSection() {
           ))}
         </div>
 
-        <div className="mb-6 flex flex-col items-center justify-center leading-none text-white/45 sm:mb-15">
+        <div className="mb-6 -mt-5 flex flex-col items-center justify-center leading-none text-white/45 sm:mb-15">
           <span className="text-xl sm:text-2xl">.</span>
           <span className="-mt-1 text-xl sm:text-2xl">.</span>
           <span className="-mt-1 text-xl sm:text-2xl">.</span>

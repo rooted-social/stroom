@@ -32,11 +32,11 @@ export function LandingServiceSection() {
 
         <div className="mb-10 mt-10 space-y-3 text-center sm:mb-14 sm:mt-12">
           <p className="text-sm tracking-[0.16em] text-foreground/60 uppercase">Service</p>
-          <h2 className="cta-spotlight font-heading text-2xl tracking-tight text-hero-heading sm:text-4xl">
+          <h2 className="cta-spotlight font-heading whitespace-nowrap text-[clamp(1.42rem,3.9vw,1.5rem)] tracking-tight text-hero-heading sm:text-4xl">
             "성공은 단순한 행동에서 시작됩니다."
           </h2>
           <p className="mx-auto max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base">
-            당신의 트레이딩을 계획하고, 기록하고, 분석하여 시스템화 하세요.
+            트레이딩을 계획하고, 기록하고, 분석하여 시스템화 하세요.
           </p>
         </div>
 

@@ -98,7 +98,7 @@ export function SignupForm({ action }: SignupFormProps) {
 
       <div className="space-y-1">
         <span className="text-sm text-foreground/78">아이디</span>
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <input
             name="username"
             type="text"
@@ -113,7 +113,7 @@ export function SignupForm({ action }: SignupFormProps) {
             onClick={handleCheckUsername}
             disabled={checkState === "checking"}
             className={[
-              "h-10 min-w-[92px] cursor-pointer rounded-lg border px-3 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-60",
+              "h-10 w-full cursor-pointer rounded-lg border px-3 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-60 sm:min-w-[92px] sm:w-auto",
               isConfirmed
                 ? "border-emerald-400/45 bg-emerald-500/16 text-emerald-200"
                 : "border-white/12 bg-white/[0.03] text-foreground/82 hover:bg-white/[0.08]",

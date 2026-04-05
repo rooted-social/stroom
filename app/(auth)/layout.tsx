@@ -18,10 +18,10 @@ export default async function AuthLayout({
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6 text-foreground">
+    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-background p-4 text-foreground sm:p-6">
       <div className="blue-spotlight-bg" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(58,123,191,0.14),transparent_52%)]" />
-      <div className="relative z-10 liquid-glass w-full max-w-md rounded-3xl border border-white/10 bg-background/55 p-8 shadow-[0_18px_70px_-40px_rgba(110,169,221,0.55)]">
+      <div className="relative z-10 liquid-glass w-full max-w-md rounded-3xl border border-white/10 bg-background/55 p-6 shadow-[0_18px_70px_-40px_rgba(110,169,221,0.55)] sm:p-8">
         <Link href="/" className="mb-8 flex justify-center">
           <Image
             src="/images/logo_black.png"
