@@ -4,6 +4,24 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeRecord } from "@/types/trade";
 import { getReturnRateFromTrade } from "@/utils/trade-metrics";
 
+const TRADE_DASHBOARD_SELECT_FIELDS = [
+  "id",
+  "symbol",
+  "mode",
+  "status",
+  "trade_date",
+  "position",
+  "leverage",
+  "entry_price",
+  "exit_price",
+  "pnl_rate",
+  "plan",
+  "result",
+  "review",
+  "created_at",
+  "updated_at",
+].join(", ");
+
 type OverrideRow = {
   profit_amount: number | null;
   loss_amount: number | null;
@@ -42,14 +60,14 @@ export default async function DashboardPage() {
     : { data: null };
   const { data: tradesData } = await supabase
     .from("trades")
-    .select("*")
+    .select(TRADE_DASHBOARD_SELECT_FIELDS)
     .order("updated_at", { ascending: false });
 
   const { data: overridesData } = await supabase
     .from("review_daily_overrides")
     .select("profit_amount, loss_amount, currency");
 
-  const trades = (tradesData ?? []) as TradeRecord[];
+  const trades = (tradesData ?? []) as unknown as TradeRecord[];
   const overrides = (overridesData ?? []) as OverrideRow[];
 
   const totalTradeCount = trades.length;

@@ -18,6 +18,24 @@ type TradesPageProps = {
 };
 
 const TRADES_PER_PAGE = 20;
+const TRADE_LIST_SELECT_FIELDS = [
+  "id",
+  "symbol",
+  "mode",
+  "status",
+  "trade_date",
+  "holding_time",
+  "position",
+  "leverage",
+  "entry_price",
+  "exit_price",
+  "pnl_rate",
+  "plan",
+  "result",
+  "review",
+  "created_at",
+  "updated_at",
+].join(", ");
 
 export default async function TradesPage({ searchParams }: TradesPageProps) {
   const { success, error, page } = await searchParams;
@@ -28,15 +46,11 @@ export default async function TradesPage({ searchParams }: TradesPageProps) {
 
   const { data: allTradesData, error: tradesError } = await supabase
     .from("trades")
-    .select("*")
+    .select(TRADE_LIST_SELECT_FIELDS)
     .order("trade_date", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
 
-  const { data: statsTradesData } = await supabase
-    .from("trades")
-    .select("*");
-
-  const allTrades = (allTradesData ?? []) as TradeRecord[];
+  const allTrades = (allTradesData ?? []) as unknown as TradeRecord[];
   const sortedTrades = [...allTrades].sort((a, b) => {
     const aIsOngoingScenario = a.mode === "pre" && a.status === "open";
     const bIsOngoingScenario = b.mode === "pre" && b.status === "open";
@@ -58,7 +72,7 @@ export default async function TradesPage({ searchParams }: TradesPageProps) {
   const startIndex = (currentPage - 1) * TRADES_PER_PAGE;
   const endIndex = startIndex + TRADES_PER_PAGE - 1;
   const trades = sortedTrades.slice(startIndex, endIndex + 1);
-  const statsTrades = (statsTradesData ?? allTradesData ?? []) as TradeRecord[];
+  const statsTrades = allTrades;
   const closedTrades = statsTrades.filter((trade) => trade.status === "closed");
 
   const closedResults = closedTrades

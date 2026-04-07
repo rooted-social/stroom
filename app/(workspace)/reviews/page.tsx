@@ -3,6 +3,24 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type ReviewCurrency, type ReviewDailyOverride } from "@/types/review";
 import { type TradeRecord } from "@/types/trade";
 
+const TRADE_REVIEW_SELECT_FIELDS = [
+  "id",
+  "symbol",
+  "mode",
+  "status",
+  "trade_date",
+  "position",
+  "leverage",
+  "entry_price",
+  "exit_price",
+  "pnl_rate",
+  "plan",
+  "result",
+  "review",
+  "created_at",
+  "updated_at",
+].join(", ");
+
 function getInitialMonth(trades: TradeRecord[]) {
   const latestTrade = trades
     .map((trade) => trade.trade_date ?? trade.created_at.slice(0, 10))
@@ -18,16 +36,19 @@ function getInitialMonth(trades: TradeRecord[]) {
 
 export default async function ReviewsPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: tradesData, error: tradesError } = await supabase
-    .from("trades")
-    .select("*")
-    .order("trade_date", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  const { data: overridesData, error: overridesError } = await supabase
-    .from("review_daily_overrides")
-    .select("review_date, profit_amount, loss_amount, currency")
-    .order("review_date", { ascending: false });
+  const [tradesResponse, overridesResponse] = await Promise.all([
+    supabase
+      .from("trades")
+      .select(TRADE_REVIEW_SELECT_FIELDS)
+      .order("trade_date", { ascending: false })
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("review_daily_overrides")
+      .select("review_date, profit_amount, loss_amount, currency")
+      .order("review_date", { ascending: false }),
+  ]);
+  const { data: tradesData, error: tradesError } = tradesResponse;
+  const { data: overridesData, error: overridesError } = overridesResponse;
 
   if (tradesError) {
     return (
@@ -45,7 +66,7 @@ export default async function ReviewsPage() {
     );
   }
 
-  const trades = (tradesData ?? []) as TradeRecord[];
+  const trades = (tradesData ?? []) as unknown as TradeRecord[];
   const dailyOverrides = (
     (overridesData ?? []) as Array<{
       review_date: string;
