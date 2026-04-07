@@ -148,10 +148,12 @@
   }
   html {
     @apply font-sans;
+    text-rendering: optimizeLegibility;
   }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-main), "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+    letter-spacing: 0;
   }
 }
 
