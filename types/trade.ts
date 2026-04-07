@@ -17,8 +17,10 @@ export type TradeRecord = {
   exit_price: number | null;
   stop_loss: number | null;
   pnl_rate: number | null;
-  scenario: string | null;
-  checklist: string | null;
+  reasons_entry: string | null;
+  reasons_exit: string | null;
+  scenario_checklist: string | null;
+  memo_additional: string | null;
   plan: string | null;
   result: string | null;
   review: string | null;

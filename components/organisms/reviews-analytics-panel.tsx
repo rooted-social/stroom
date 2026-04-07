@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   type ReviewCurrency,
@@ -19,6 +20,7 @@ type ReviewsAnalyticsPanelProps = {
 type CalendarMetric = {
   tradeCount: number;
   averageReturn: number | null;
+  ongoingScenarioCount: number;
 };
 
 type DailyOverrideMap = Record<string, ReviewDailyOverride>;
@@ -26,6 +28,13 @@ type DailyOverrideMap = Record<string, ReviewDailyOverride>;
 type MonthOption = {
   value: string;
   label: string;
+};
+
+type PerformanceSummary = {
+  entryCount: number;
+  evaluatedCount: number;
+  winRate: number | null;
+  averageReturn: number | null;
 };
 
 const currencyMeta: Record<ReviewCurrency, { symbol: string; locale: string }> = {
@@ -46,12 +55,25 @@ function formatMonthLabel(monthKey: string) {
   return `${year}년 ${month}월`;
 }
 
+function formatMonthBadge(monthKey: string) {
+  const [year, month] = monthKey.split("-").map(Number);
+  return `${year}.${String(month).padStart(2, "0")}`;
+}
+
 function formatRate(rate: number | null) {
   if (rate === null) {
     return "-";
   }
 
   return `${rate >= 0 ? "+" : ""}${rate.toFixed(1)}%`;
+}
+
+function formatPercent(value: number | null) {
+  if (value === null) {
+    return "-";
+  }
+
+  return `${value.toFixed(1)}%`;
 }
 
 function formatAmount(value: number, currency: ReviewCurrency) {
@@ -64,14 +86,14 @@ function formatAmount(value: number, currency: ReviewCurrency) {
 
 function getCellToneClass(rate: number | null) {
   if (rate === null) {
-    return "border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-500";
+    return "border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400";
   }
 
   if (rate >= 0) {
-    return "border-emerald-300 bg-emerald-100/80 text-emerald-800 dark:border-emerald-500/60 dark:bg-emerald-500/20 dark:text-emerald-100";
+    return "border-emerald-300 bg-emerald-100/80 text-zinc-800 dark:border-emerald-500/60 dark:bg-emerald-500/20 dark:text-zinc-100";
   }
 
-  return "border-rose-300 bg-rose-100/80 text-rose-800 dark:border-rose-500/60 dark:bg-rose-500/20 dark:text-rose-100";
+  return "border-rose-300 bg-rose-100/80 text-zinc-800 dark:border-rose-500/60 dark:bg-rose-500/20 dark:text-zinc-100";
 }
 
 function formatNetAmount(override: ReviewDailyOverride | undefined) {
@@ -80,7 +102,52 @@ function formatNetAmount(override: ReviewDailyOverride | undefined) {
   }
 
   const net = override.profit_amount - override.loss_amount;
-  return formatAmount(Math.abs(net), override.currency);
+  if (net === 0) {
+    return formatAmount(0, override.currency);
+  }
+  return `${net > 0 ? "+" : "-"}${formatAmount(Math.abs(net), override.currency)}`;
+}
+
+function toLocalDateKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+function calculatePerformanceSummary(
+  trades: TradeRecord[],
+  predicate: (trade: TradeRecord, dateKey: string) => boolean,
+): PerformanceSummary {
+  let entryCount = 0;
+  let evaluatedCount = 0;
+  let winCount = 0;
+  let totalReturn = 0;
+
+  trades.forEach((trade) => {
+    const dateKey = toDateKey(trade.trade_date, trade.created_at);
+    if (!predicate(trade, dateKey)) {
+      return;
+    }
+
+    entryCount += 1;
+    const rate = getReturnRateFromTrade(trade);
+    if (rate === null) {
+      return;
+    }
+
+    evaluatedCount += 1;
+    if (rate > 0) {
+      winCount += 1;
+    }
+    totalReturn += rate;
+  });
+
+  return {
+    entryCount,
+    evaluatedCount,
+    winRate: evaluatedCount > 0 ? (winCount / evaluatedCount) * 100 : null,
+    averageReturn: evaluatedCount > 0 ? totalReturn / evaluatedCount : null,
+  };
 }
 
 async function saveDailyOverride(input: {
@@ -155,7 +222,10 @@ export function ReviewsAnalyticsPanel({
   }, [initialMonth, trades]);
 
   const monthMetrics = useMemo(() => {
-    const map = new Map<string, { returns: number[]; tradeCount: number }>();
+    const map = new Map<
+      string,
+      { returns: number[]; tradeCount: number; ongoingScenarioCount: number }
+    >();
 
     trades.forEach((trade) => {
       const dateKey = toDateKey(trade.trade_date, trade.created_at);
@@ -164,8 +234,19 @@ export function ReviewsAnalyticsPanel({
         return;
       }
 
-      const current = map.get(dateKey) ?? { returns: [], tradeCount: 0 };
+      const current = map.get(dateKey) ?? {
+        returns: [],
+        tradeCount: 0,
+        ongoingScenarioCount: 0,
+      };
       current.tradeCount += 1;
+
+      const isOngoingScenario = trade.mode === "pre" && trade.status === "open";
+      if (isOngoingScenario) {
+        current.ongoingScenarioCount += 1;
+        map.set(dateKey, current);
+        return;
+      }
 
       const rate = getReturnRateFromTrade(trade);
       if (rate !== null) {
@@ -181,6 +262,7 @@ export function ReviewsAnalyticsPanel({
         result.set(key, {
           tradeCount: value.tradeCount,
           averageReturn: null,
+          ongoingScenarioCount: value.ongoingScenarioCount,
         });
         return;
       }
@@ -190,6 +272,7 @@ export function ReviewsAnalyticsPanel({
       result.set(key, {
         tradeCount: value.tradeCount,
         averageReturn: average,
+        ongoingScenarioCount: value.ongoingScenarioCount,
       });
     });
 
@@ -260,6 +343,67 @@ export function ReviewsAnalyticsPanel({
       }))
       .filter((entry) => entry.amount !== 0 || summaryMap.has(entry.currency));
   }, [overrideMap, selectedMonth]);
+
+  const recent7DaysSummary = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 6);
+    const startKey = toLocalDateKey(startDate);
+    const endKey = toLocalDateKey(today);
+
+    const summaryMap = new Map<ReviewCurrency, number>();
+    Object.values(overrideMap).forEach((entry) => {
+      if (entry.review_date < startKey || entry.review_date > endKey) {
+        return;
+      }
+      const current = summaryMap.get(entry.currency) ?? 0;
+      summaryMap.set(entry.currency, current + (entry.profit_amount - entry.loss_amount));
+    });
+
+    return (["KRW", "USD"] as const)
+      .map((currencyType) => ({
+        currency: currencyType,
+        amount: summaryMap.get(currencyType) ?? 0,
+      }))
+      .filter((entry) => entry.amount !== 0 || summaryMap.has(entry.currency));
+  }, [overrideMap]);
+
+  const selectedMonthPerformance = useMemo(
+    () =>
+      calculatePerformanceSummary(
+        trades,
+        (_trade, dateKey) => dateKey.slice(0, 7) === selectedMonth,
+      ),
+    [selectedMonth, trades],
+  );
+
+  const recent7DaysPerformance = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 6);
+
+    const startKey = toLocalDateKey(startDate);
+    const endKey = toLocalDateKey(today);
+    const summary = calculatePerformanceSummary(
+      trades,
+      (_trade, dateKey) => dateKey >= startKey && dateKey <= endKey,
+    );
+
+    return {
+      startKey,
+      endKey,
+      summary,
+    };
+  }, [trades]);
+
+  const selectedMonthIndex = useMemo(
+    () => monthOptions.findIndex((option) => option.value === selectedMonth),
+    [monthOptions, selectedMonth],
+  );
+  const prevMonthOption = selectedMonthIndex >= 0 ? monthOptions[selectedMonthIndex + 1] : undefined;
+  const nextMonthOption = selectedMonthIndex > 0 ? monthOptions[selectedMonthIndex - 1] : undefined;
 
   const calendarCells = useMemo(() => {
     const [yearValue, monthValue] = selectedMonth.split("-").map(Number);
@@ -433,9 +577,15 @@ export function ReviewsAnalyticsPanel({
               const metrics = monthMetrics.get(cell.dateKey);
               const override = overrideMap[cell.dateKey];
               const isActive = activeDate === cell.dateKey;
-              const toneClass = getCellToneClass(metrics?.averageReturn ?? null);
+              const netAmount = override
+                ? override.profit_amount - override.loss_amount
+                : null;
+              const toneClass = getCellToneClass(netAmount);
               const amountText = formatNetAmount(override);
               const rateText = formatRate(metrics?.averageReturn ?? null);
+              const shouldShowOngoingText =
+                (metrics?.ongoingScenarioCount ?? 0) > 0 && metrics?.averageReturn === null;
+              const isNegativeRate = (metrics?.averageReturn ?? 0) < 0;
 
               return (
                 <button
@@ -462,9 +612,27 @@ export function ReviewsAnalyticsPanel({
                     </span>
                   </div>
                   <p className="mt-1 hidden truncate text-[12px] font-semibold sm:block sm:text-sm">{amountText}</p>
-                  <p className="mt-0.5 hidden truncate text-[10px] opacity-90 sm:block sm:text-[11px]">{rateText}</p>
-                  <p className="absolute inset-x-1 top-1/2 -translate-y-1/2 text-center text-[12px] font-semibold sm:hidden">
-                    {rateText}
+                  <p
+                    className={`mt-0.5 hidden truncate sm:block ${
+                      shouldShowOngoingText
+                        ? "text-[11px] font-semibold text-sky-600 dark:text-sky-400"
+                        : isNegativeRate
+                          ? "text-[10px] font-semibold text-rose-600 sm:text-[11px] dark:text-rose-400"
+                          : "text-[10px] opacity-90 sm:text-[11px]"
+                    }`}
+                  >
+                    {shouldShowOngoingText ? "진행 중" : rateText}
+                  </p>
+                  <p
+                    className={`absolute inset-x-1 top-1/2 -translate-y-1/2 text-center sm:hidden ${
+                      shouldShowOngoingText
+                        ? "text-[11px] font-semibold text-sky-600 dark:text-sky-400"
+                        : isNegativeRate
+                          ? "text-[12px] font-semibold text-rose-600 dark:text-rose-400"
+                          : "text-[12px] font-semibold"
+                    }`}
+                  >
+                    {shouldShowOngoingText ? "진행 중" : rateText}
                   </p>
                 </button>
               );
@@ -475,8 +643,124 @@ export function ReviewsAnalyticsPanel({
         <section className="space-y-4">
           <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-[#0d1014]">
             <h3 className="text-sm font-semibold tracking-wide text-zinc-800 dark:text-zinc-200">
-              {formatMonthLabel(selectedMonth)} 성과
+              지난 7일 성과
             </h3>
+            <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-500">
+              {recent7DaysPerformance.startKey} ~ {recent7DaysPerformance.endKey}
+            </p>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-500">포지션 진입 횟수</p>
+                <p className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                  {recent7DaysPerformance.summary.entryCount}회
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-500">승률</p>
+                <p className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                  {formatPercent(recent7DaysPerformance.summary.winRate)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-500">평균 P&amp;L</p>
+                <p
+                  className={`mt-1 text-base font-semibold ${
+                    (recent7DaysPerformance.summary.averageReturn ?? 0) >= 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-rose-600 dark:text-rose-400"
+                  }`}
+                >
+                  {formatRate(recent7DaysPerformance.summary.averageReturn)}
+                </p>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-500">
+              {recent7DaysPerformance.summary.evaluatedCount}건의 P&amp;L 기록 기준
+            </p>
+            <div className="mt-3 space-y-2 sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0 xl:block xl:space-y-2">
+              {recent7DaysSummary.length === 0 ? (
+                <p className="text-sm text-zinc-500 dark:text-zinc-500">입력된 손익 데이터가 없습니다.</p>
+              ) : (
+                recent7DaysSummary.map((entry) => (
+                  <div
+                    key={entry.currency}
+                    className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/70"
+                  >
+                    <p className="text-xs text-zinc-500 dark:text-zinc-500">{entry.currency}</p>
+                    <p
+                      className={`text-lg font-semibold ${
+                        entry.amount >= 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-rose-600 dark:text-rose-400"
+                      }`}
+                    >
+                      {entry.amount >= 0 ? "+" : "-"}
+                      {formatAmount(Math.abs(entry.amount), entry.currency)}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-[#0d1014]">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-sm font-semibold tracking-wide text-zinc-800 dark:text-zinc-200">
+                {formatMonthLabel(selectedMonth)} 성과
+              </h3>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => prevMonthOption && setSelectedMonth(prevMonthOption.value)}
+                  disabled={!prevMonthOption}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  aria-label="지난 달"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+                <span className="inline-flex h-8 min-w-[68px] items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 px-2 text-xs font-semibold text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                  {formatMonthBadge(selectedMonth)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => nextMonthOption && setSelectedMonth(nextMonthOption.value)}
+                  disabled={!nextMonthOption}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  aria-label="다음 달"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-500">포지션 진입 횟수</p>
+                <p className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                  {selectedMonthPerformance.entryCount}회
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-500">승률</p>
+                <p className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                  {formatPercent(selectedMonthPerformance.winRate)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/70">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-500">평균 P&amp;L</p>
+                <p
+                  className={`mt-1 text-base font-semibold ${
+                    (selectedMonthPerformance.averageReturn ?? 0) >= 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-rose-600 dark:text-rose-400"
+                  }`}
+                >
+                  {formatRate(selectedMonthPerformance.averageReturn)}
+                </p>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-500">
+              {selectedMonthPerformance.evaluatedCount}건의 P&amp;L 기록 기준
+            </p>
             <div className="mt-3 space-y-2 sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0 xl:block xl:space-y-2">
               {selectedMonthSummary.length === 0 ? (
                 <p className="text-sm text-zinc-500 dark:text-zinc-500">입력된 손익 데이터가 없습니다.</p>

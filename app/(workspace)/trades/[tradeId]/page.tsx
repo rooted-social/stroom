@@ -14,7 +14,6 @@ import { SubmitButton } from "@/components/atoms/submit-button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeImage } from "@/types/trade-image";
 import { type TradeRecord } from "@/types/trade";
-import { parseScenarioChecklistText } from "@/utils/scenario-checklist";
 import {
   calculateReturnRate,
   getReturnRateFromTrade,
@@ -182,21 +181,19 @@ export default async function TradeDetailPage({
     trade.mode === "pre"
       ? "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/60 dark:bg-sky-900/20 dark:text-sky-300"
       : "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-900/60 dark:bg-violet-900/20 dark:text-violet-300";
-  const parsedChecklist = parseScenarioChecklistText(trade.checklist);
-  const showScenarioPreChecklist = parsedChecklist.hasStructuredData;
   const checklistSectionTitle =
     trade.mode === "pre" ? "체크리스트" : "진입 전 체크리스트";
   const memoSectionTitle =
     trade.mode === "pre" ? "추가 메모" : "진입 전 메모";
   const symbolText = trade.symbol.trim();
-  const scenarioText = (trade.scenario ?? "").trim();
-  const exitReasonText = (
-    showScenarioPreChecklist ? parsedChecklist.exitReasonText : trade.checklist
-  )?.trim();
-  const checklistItems = parsedChecklist.checklistItems.filter(
-    (item) => item.trim().length > 0,
-  );
-  const memoText = (parsedChecklist.memoText ?? "").trim();
+  const scenarioText = (trade.reasons_entry ?? "").trim();
+  const exitReasonText = (trade.reasons_exit ?? "").trim();
+  const checklistText = (trade.scenario_checklist ?? "").trim();
+  const checklistItems = checklistText
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+  const memoText = (trade.memo_additional ?? "").trim();
   const reviewText = (trade.review ?? "").trim();
   const hasSymbol = symbolText.length > 0;
   const hasPnl = isScenarioBeforeClose
@@ -209,7 +206,7 @@ export default async function TradeDetailPage({
   const hasLeverage = hasMeaningfulValue(leverageDisplay);
   const hasScenario = scenarioText.length > 0;
   const hasExitReason = Boolean(exitReasonText);
-  const hasChecklist = showScenarioPreChecklist && checklistItems.length > 0;
+  const hasChecklist = checklistItems.length > 0;
   const hasMemo = memoText.length > 0;
   const hasReview = reviewText.length > 0;
   const hasRiskReward = hasMeaningfulValue(riskRewardDisplay);
@@ -434,7 +431,7 @@ export default async function TradeDetailPage({
                   name="entryReason"
                   rows={4}
                   required
-                  defaultValue={trade.scenario ?? ""}
+                  defaultValue={scenarioText}
                   className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 />
               </label>
@@ -444,10 +441,12 @@ export default async function TradeDetailPage({
                   name="exitReason"
                   rows={3}
                   required
-                  defaultValue={trade.checklist ?? ""}
+                  defaultValue={exitReasonText}
                   className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 />
               </label>
+              <input type="hidden" name="scenarioChecklist" value={checklistText} />
+              <input type="hidden" name="memoAdditional" value={memoText} />
             </div>
 
             {trade.mode === "post" || trade.status === "closed" ? (

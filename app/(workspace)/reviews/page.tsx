@@ -72,7 +72,7 @@ export default async function ReviewsPage() {
           REVIEWS
         </p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-          수익 및 매매 분석
+          수익 및 성과 관리
         </h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
           매매일지 수익률 기반으로 월간 흐름을 확인하고, 날짜별 수익/손실 금액을

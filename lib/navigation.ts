@@ -17,7 +17,7 @@ export const workspaceNavigationItems: WorkspaceNavigationItem[] = [
   },
   {
     href: "/reviews",
-    labelKo: "수익 및 분석",
+    labelKo: "수익 및 성과",
     labelEn: "Reviews",
   },
   {

@@ -18,12 +18,8 @@ export function ScenarioChecklistField({ items }: ScenarioChecklistFieldProps) {
     [items],
   );
 
-  const encoded = useMemo(() => {
-    const selectedText =
-      selectedItems.length > 0 ? `체크리스트: ${selectedItems.join(", ")}` : "";
-    const memoText = memo.trim() ? `추가 메모: ${memo.trim()}` : "";
-    return [selectedText, memoText].filter(Boolean).join("\n");
-  }, [memo, selectedItems]);
+  const encodedChecklist = useMemo(() => selectedItems.join(", "), [selectedItems]);
+  const encodedMemo = useMemo(() => memo.trim(), [memo]);
 
   function toggleItem(item: string) {
     setSelectedItems((prev) =>
@@ -65,7 +61,8 @@ export function ScenarioChecklistField({ items }: ScenarioChecklistFieldProps) {
         />
       </label>
 
-      <input type="hidden" name="scenarioChecklist" value={encoded} />
+      <input type="hidden" name="scenarioChecklist" value={encodedChecklist} />
+      <input type="hidden" name="memoAdditional" value={encodedMemo} />
     </div>
   );
 }

@@ -94,7 +94,7 @@ export function getReturnRateFromTrade(trade: TradeRecord) {
       ? Number(trade.entry_price)
       : meta?.entryPrice
         ? parseNumberFromText(meta.entryPrice)
-        : parseNumberFromText(trade.plan) ?? parseNumberFromText(trade.scenario);
+        : parseNumberFromText(trade.plan);
   const exitPrice =
     trade.exit_price !== null && Number.isFinite(trade.exit_price)
       ? Number(trade.exit_price)

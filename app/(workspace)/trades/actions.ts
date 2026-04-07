@@ -205,22 +205,14 @@ export async function createTradeAction(formData: FormData) {
   const exitPrice = String(formData.get("exitPrice") ?? "").trim();
   const stopPrice = String(formData.get("stopPrice") ?? "").trim();
   const entryReason = String(formData.get("entryReason") ?? "").trim();
-  const exitReasonInput = String(formData.get("exitReason") ?? "").trim();
+  const exitReason = String(formData.get("exitReason") ?? "").trim();
   const scenarioChecklist = String(formData.get("scenarioChecklist") ?? "").trim();
+  const memoAdditional = String(formData.get("memoAdditional") ?? "").trim();
   const review = String(formData.get("review") ?? "").trim();
-  const exitReason =
-    scenarioChecklist.length > 0
-      ? [
-          exitReasonInput ? `탈출 근거: ${exitReasonInput}` : "",
-          scenarioChecklist,
-        ]
-          .filter(Boolean)
-          .join("\n")
-      : exitReasonInput;
 
   const title = symbol ? `${symbol} ${mode === "pre" ? "시나리오" : "매매일지"}` : "";
-  const scenario = entryReason;
-  const checklist = exitReason;
+  const reasonsEntry = entryReason;
+  const reasonsExit = exitReason;
   const plan = encodeTradeFormMeta({
     tradeDate,
     holdingTime,
@@ -245,7 +237,17 @@ export async function createTradeAction(formData: FormData) {
       ? `${pnlRate >= 0 ? "+" : ""}${pnlRate.toFixed(2)}%`
       : "";
 
-  if (!symbol || !tradeDate || !position || !entryPrice || !exitPrice || !stopPrice || !leverage || !entryReason || !exitReason) {
+  if (
+    !symbol ||
+    !tradeDate ||
+    !position ||
+    !entryPrice ||
+    !exitPrice ||
+    !stopPrice ||
+    !leverage ||
+    !entryReason ||
+    !exitReason
+  ) {
     redirect(`/trades/new?mode=${mode}&error=${encodeURIComponent("필수 항목을 모두 입력해주세요.")}`);
   }
 
@@ -273,8 +275,10 @@ export async function createTradeAction(formData: FormData) {
       exit_price: parsedExit,
       stop_loss: parseNumericInput(stopPrice),
       pnl_rate: pnlRate,
-      scenario,
-      checklist,
+      reasons_entry: reasonsEntry,
+      reasons_exit: reasonsExit,
+      scenario_checklist: scenarioChecklist || null,
+      memo_additional: memoAdditional || null,
       plan,
       result,
       review,
@@ -341,22 +345,14 @@ export async function updateTradeAction(formData: FormData) {
   const exitPrice = String(formData.get("exitPrice") ?? "").trim();
   const stopPrice = String(formData.get("stopPrice") ?? "").trim();
   const entryReason = String(formData.get("entryReason") ?? "").trim();
-  const exitReasonInput = String(formData.get("exitReason") ?? "").trim();
+  const exitReason = String(formData.get("exitReason") ?? "").trim();
   const scenarioChecklist = String(formData.get("scenarioChecklist") ?? "").trim();
+  const memoAdditional = String(formData.get("memoAdditional") ?? "").trim();
   const review = String(formData.get("review") ?? "").trim();
-  const exitReason =
-    scenarioChecklist.length > 0
-      ? [
-          exitReasonInput ? `탈출 근거: ${exitReasonInput}` : "",
-          scenarioChecklist,
-        ]
-          .filter(Boolean)
-          .join("\n")
-      : exitReasonInput;
 
   const title = symbol ? `${symbol} ${mode === "pre" ? "시나리오" : "매매일지"}` : "";
-  const scenario = entryReason;
-  const checklist = exitReason;
+  const reasonsEntry = entryReason;
+  const reasonsExit = exitReason;
   const plan = encodeTradeFormMeta({
     tradeDate,
     holdingTime,
@@ -385,7 +381,17 @@ export async function updateTradeAction(formData: FormData) {
     notFound();
   }
 
-  if (!symbol || !tradeDate || !position || !entryPrice || !exitPrice || !stopPrice || !leverage || !entryReason || !exitReason) {
+  if (
+    !symbol ||
+    !tradeDate ||
+    !position ||
+    !entryPrice ||
+    !exitPrice ||
+    !stopPrice ||
+    !leverage ||
+    !entryReason ||
+    !exitReason
+  ) {
     redirect(`/trades/${tradeId}?error=${encodeURIComponent("필수 항목을 모두 입력해주세요.")}`);
   }
 
@@ -412,8 +418,10 @@ export async function updateTradeAction(formData: FormData) {
       exit_price: parsedExit,
       stop_loss: parseNumericInput(stopPrice),
       pnl_rate: pnlRate,
-      scenario,
-      checklist,
+      reasons_entry: reasonsEntry,
+      reasons_exit: reasonsExit,
+      scenario_checklist: scenarioChecklist || null,
+      memo_additional: memoAdditional || null,
       plan,
       result,
       review,
@@ -542,7 +550,7 @@ export async function duplicateTradeAction(formData: FormData) {
   const { data: source, error: sourceError } = await supabase
     .from("trades")
     .select(
-      "mode, title, symbol, trade_date, holding_time, position, leverage, entry_price, exit_price, stop_loss, pnl_rate, scenario, checklist, plan, result, review",
+      "mode, title, symbol, trade_date, holding_time, position, leverage, entry_price, exit_price, stop_loss, pnl_rate, reasons_entry, reasons_exit, scenario_checklist, memo_additional, plan, result, review",
     )
     .eq("id", tradeId)
     .eq("user_id", userId)
@@ -566,8 +574,10 @@ export async function duplicateTradeAction(formData: FormData) {
     exit_price: source.exit_price,
     stop_loss: source.stop_loss,
     pnl_rate: source.pnl_rate,
-    scenario: source.scenario,
-    checklist: source.checklist,
+    reasons_entry: source.reasons_entry,
+    reasons_exit: source.reasons_exit,
+    scenario_checklist: source.scenario_checklist,
+    memo_additional: source.memo_additional,
     plan: source.plan,
     result: source.result,
     review: source.review,
