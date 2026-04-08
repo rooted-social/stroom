@@ -15,8 +15,13 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Stroom",
+  title: "스트룸 - 매매일지 및 트레이딩 관리 시스템",
   description: "Trading journal workspace for disciplined traders.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
