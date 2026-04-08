@@ -20,13 +20,7 @@ export default async function WorkspaceLayout({
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name")
-    .eq("id", user.id)
-    .single();
-
-  const workspaceName = profile?.full_name?.trim() || user.email?.split("@")[0] || "member";
+  const workspaceName = user.user_metadata?.full_name?.trim() || user.email?.split("@")[0] || "member";
 
   return (
     <div className="min-h-screen bg-[#f5f6f8] dark:bg-[#090b0d]">

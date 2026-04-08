@@ -52,23 +52,18 @@ function getMonthKey(dateText: string) {
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const { data: profile } = user
-    ? await supabase.from("profiles").select("full_name").eq("id", user.id).single()
-    : { data: null };
-  const { data: tradesData } = await supabase
-    .from("trades")
-    .select(TRADE_DASHBOARD_SELECT_FIELDS)
-    .order("updated_at", { ascending: false });
+  const [tradesResponse, overridesResponse] = await Promise.all([
+    supabase
+      .from("trades")
+      .select(TRADE_DASHBOARD_SELECT_FIELDS)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("review_daily_overrides")
+      .select("profit_amount, loss_amount, currency"),
+  ]);
 
-  const { data: overridesData } = await supabase
-    .from("review_daily_overrides")
-    .select("profit_amount, loss_amount, currency");
-
-  const trades = (tradesData ?? []) as unknown as TradeRecord[];
-  const overrides = (overridesData ?? []) as OverrideRow[];
+  const trades = (tradesResponse.data ?? []) as unknown as TradeRecord[];
+  const overrides = (overridesResponse.data ?? []) as OverrideRow[];
 
   const totalTradeCount = trades.length;
   const now = new Date();
@@ -95,11 +90,7 @@ export default async function DashboardPage() {
   const shortWinCount = shortClosedRates.filter((item) => item.rate > 0).length;
   const longWinRate = longClosedRates.length === 0 ? 0 : (longWinCount / longClosedRates.length) * 100;
   const shortWinRate = shortClosedRates.length === 0 ? 0 : (shortWinCount / shortClosedRates.length) * 100;
-  const insightUserName =
-    profile?.full_name?.trim() ||
-    user?.user_metadata?.full_name ||
-    user?.email?.split("@")[0] ||
-    "회원";
+  const insightUserName = "회원";
   const preferredPosition =
     longClosedRates.length === 0 && shortClosedRates.length === 0
       ? null

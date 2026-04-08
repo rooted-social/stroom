@@ -3,6 +3,10 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabaseEnvOrNull } from "@/lib/env";
 
+function hasSupabaseAuthCookie(request: NextRequest) {
+  return request.cookies.getAll().some(({ name }) => name.includes("-auth-token"));
+}
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
     request,
@@ -32,6 +36,10 @@ export async function updateSession(request: NextRequest) {
       },
     },
   });
+
+  if (!hasSupabaseAuthCookie(request)) {
+    return response;
+  }
 
   await supabase.auth.getUser();
 
