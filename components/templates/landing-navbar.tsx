@@ -2,8 +2,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Menu } from "lucide-react"
 
+import { LandingAuthCta } from "@/components/templates/landing-auth-cta"
 import { cn } from "@/lib/utils"
-import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 type LandingNavbarProps = {
   currentPath?: string
@@ -21,12 +21,7 @@ const heroSecondaryButtonClass =
 const heroPrimaryButtonClass =
   "inline-flex h-auto items-center justify-center rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 sm:px-4 sm:py-2 sm:text-[0.8rem]"
 
-export async function LandingNavbar({ currentPath = "/" }: LandingNavbarProps) {
-  const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+export function LandingNavbar({ currentPath = "/" }: LandingNavbarProps) {
   return (
     <>
       <nav className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
@@ -90,22 +85,10 @@ export async function LandingNavbar({ currentPath = "/" }: LandingNavbarProps) {
                 ))}
               </div>
 
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                {user ? (
-                  <Link href="/dashboard" className={heroSecondaryButtonClass}>
-                    내 대시보드
-                  </Link>
-                ) : (
-                  <>
-                    <Link href="/login" className={heroSecondaryButtonClass}>
-                      로그인
-                    </Link>
-                    <Link href="/signup" className={heroPrimaryButtonClass}>
-                      회원가입
-                    </Link>
-                  </>
-                )}
-              </div>
+              <LandingAuthCta
+                secondaryButtonClass={heroSecondaryButtonClass}
+                primaryButtonClass={heroPrimaryButtonClass}
+              />
             </div>
           </div>
         </div>
