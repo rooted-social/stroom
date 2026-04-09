@@ -19,7 +19,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
       <header className="space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">회원가입</h1>
         <p className="text-sm text-foreground/70">
-          신규 계정을 만들고 트레이드 기록을 시작하세요.
+          스트룸과 함께 성장해보세요.
         </p>
       </header>
       {error ? (

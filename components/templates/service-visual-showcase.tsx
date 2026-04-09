@@ -38,8 +38,8 @@ const showcaseItems: ShowcaseItem[] = [
   {
     label: "성과 분석",
     imageSrc: "/images/service/analysis.JPG",
-    title: "반복 가능한 매매 분석",
-    description: "승패 패턴과 실수 유형을 자동 분류해 개선 포인트를 일관되게 축적합니다.",
+    title: "편리한 성과 관리",
+    description: "나의 성과를 일간, 주간, 월간 단위로 확인하고 관리합니다.",
   },
 ]
 

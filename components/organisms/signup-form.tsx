@@ -160,7 +160,7 @@ export function SignupForm({ action }: SignupFormProps) {
         />
       </label>
       <label className="block space-y-1">
-        <span className="text-sm text-foreground/78">이메일 주소 (인증)</span>
+        <span className="text-sm text-foreground/78">이메일 주소 (가입 후, 인증 메일이 발송됩니다.)</span>
         <input
           name="email"
           type="email"

@@ -14,7 +14,7 @@ export async function HeroSection() {
 
       <div className="relative z-10 flex min-h-[84vh] flex-col items-center justify-center px-4 pb-7 pt-28 text-center sm:min-h-[98vh] sm:pt-36">
         <div className="silver-badge mb-5 inline-flex items-center rounded-full px-4 py-1.5 text-[13px] font-medium tracking-[0.14em] text-white/90 uppercase sm:mb-6">
-          최초의 트레이딩 관리 시스템
+          트레이더를 위한 관리 시스템
         </div>
         <h1
           className="cta-spotlight font-heading whitespace-nowrap text-[clamp(3.1rem,16vw,8.8rem)] leading-[0.98] font-semibold tracking-[-0.024em] text-transparent bg-clip-text sm:text-[clamp(4.6rem,24vw,13.5rem)]"

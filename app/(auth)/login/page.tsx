@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <header className="space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
         <p className="text-sm text-foreground/70">
-          Stroom에서 트레이드 저널을 이어서 관리하세요.
+          스트룸 - 매매일지 및 트레이딩 관리 시스템
         </p>
       </header>
       {error ? (
