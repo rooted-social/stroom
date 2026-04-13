@@ -1,19 +1,18 @@
 import Link from "next/link"
 
+import { submitContactInquiryAction } from "@/app/contact/actions"
 import { LandingNavbar } from "@/components/templates/landing-navbar"
 
-const contactItems = [
-  {
-    title: "기능 제안",
-    description: "실제 트레이딩 루틴에 필요한 기능 아이디어를 보내주시면 우선순위를 검토해 반영합니다.",
-  },
-  {
-    title: "요금 문의",
-    description: "플랜 구성, 할인 적용, 결제 방식 등 요금 관련 질문을 빠르게 안내해드립니다.",
-  },
-]
+type ContactPageProps = {
+  searchParams: Promise<{
+    success?: string
+    error?: string
+  }>
+}
 
-export default async function ContactPage() {
+export default async function ContactPage({ searchParams }: ContactPageProps) {
+  const { success, error } = await searchParams
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
       <div className="blue-spotlight-bg" />
@@ -27,40 +26,121 @@ export default async function ContactPage() {
               고객 문의
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base">
-              문의 내용을 메일로 남겨주시면 확인 후 빠르게 답변드리겠습니다.
+              문의 내용을 남겨주시면 확인 후 빠르게 답변드리겠습니다.
             </p>
           </header>
 
-          <div className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-2">
-            {contactItems.map((item) => (
-              <article key={item.title} className="liquid-glass rounded-2xl p-6">
-                <h2 className="text-xl font-semibold text-foreground">{item.title}</h2>
-                <p className="mt-2 text-sm leading-7 text-foreground/75">{item.description}</p>
-              </article>
-            ))}
-          </div>
+          <section className="relative mx-auto mt-10 w-full max-w-3xl liquid-glass rounded-3xl p-6 sm:p-8">
+            <div className="mb-5 text-center">
+              <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Inquiry Form</p>
+              <h2 className="mt-2 text-2xl font-semibold text-hero-heading">문의사항</h2>
+            </div>
 
-          <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-[#6EA9DD]/50 bg-[#3A7BBF]/12 p-6 text-center sm:p-8">
-            <p className="text-sm text-foreground/75">빠른 문의</p>
-            <p className="mt-2 text-xl font-semibold text-hero-heading sm:text-2xl">hello@stroom.app</p>
-            <p className="mt-2 text-xs text-foreground/65">기능 제안 / 요금 문의를 메일로 보내주세요.</p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <a
-                href="mailto:hello@stroom.app"
-                className="rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-5 py-3 text-sm font-semibold text-white hover:opacity-90"
-              >
-                메일로 문의하기
-              </a>
+            {error ? (
+              <p className="mb-4 rounded-xl border border-red-300/60 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+                {error}
+              </p>
+            ) : null}
+
+            <form action={submitContactInquiryAction} className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="space-y-1.5">
+                  <span className="text-sm text-foreground/85">이름</span>
+                  <input
+                    name="name"
+                    required
+                    className="h-11 w-full rounded-xl border border-white/20 bg-black/20 px-3 text-sm text-white outline-none ring-0 transition placeholder:text-foreground/45 focus:border-[#6EA9DD]/60"
+                    placeholder="홍길동"
+                  />
+                </label>
+                <label className="space-y-1.5">
+                  <span className="text-sm text-foreground/85">이메일</span>
+                  <input
+                    name="email"
+                    type="email"
+                    required
+                    className="h-11 w-full rounded-xl border border-white/20 bg-black/20 px-3 text-sm text-white outline-none ring-0 transition placeholder:text-foreground/45 focus:border-[#6EA9DD]/60"
+                    placeholder="name@email.com"
+                  />
+                </label>
+              </div>
+
+              <label className="space-y-1.5 block">
+                <span className="text-sm text-foreground/85">연락처</span>
+                <input
+                  name="phone"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-black/20 px-3 text-sm text-white outline-none ring-0 transition placeholder:text-foreground/45 focus:border-[#6EA9DD]/60"
+                  placeholder="010-1234-5678"
+                />
+              </label>
+
+              <fieldset className="space-y-2">
+                <legend className="text-sm text-foreground/85">문의 항목</legend>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <label className="group relative cursor-pointer rounded-xl">
+                    <input type="checkbox" name="topics" value="feature" className="peer sr-only" />
+                    <span className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-black/15 px-3 text-center text-sm text-foreground/90 transition peer-checked:border-[#6EA9DD] peer-checked:bg-[#3A7BBF]/35 peer-checked:text-white group-hover:border-[#6EA9DD]/70">
+                      기능 제안
+                    </span>
+                  </label>
+                  <label className="group relative cursor-pointer rounded-xl">
+                    <input type="checkbox" name="topics" value="pricing" className="peer sr-only" />
+                    <span className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-black/15 px-3 text-center text-sm text-foreground/90 transition peer-checked:border-[#6EA9DD] peer-checked:bg-[#3A7BBF]/35 peer-checked:text-white group-hover:border-[#6EA9DD]/70">
+                      요금 문의
+                    </span>
+                  </label>
+                  <label className="group relative cursor-pointer rounded-xl">
+                    <input type="checkbox" name="topics" value="partnership" className="peer sr-only" />
+                    <span className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-black/15 px-3 text-center text-sm text-foreground/90 transition peer-checked:border-[#6EA9DD] peer-checked:bg-[#3A7BBF]/35 peer-checked:text-white group-hover:border-[#6EA9DD]/70">
+                      협업 제안
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <label className="space-y-1.5 block">
+                <span className="text-sm text-foreground/85">문의 내용</span>
+                <textarea
+                  name="message"
+                  required
+                  rows={6}
+                  className="w-full rounded-xl border border-white/20 bg-black/20 px-3 py-2 text-sm text-white outline-none ring-0 transition placeholder:text-foreground/45 focus:border-[#6EA9DD]/60"
+                  placeholder="문의하실 내용을 남겨주세요."
+                />
+              </label>
+
+              <div className="pt-1 text-center">
+                <button
+                  type="submit"
+                  className="cursor-pointer rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                >
+                  제출하기
+                </button>
+              </div>
+            </form>
+
+          </section>
+        </div>
+      </section>
+
+      {success ? (
+        <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center px-4">
+          <div className="pointer-events-auto w-full max-w-sm rounded-2xl border border-[#6EA9DD]/45 bg-[#0f1b2c] p-5 text-center shadow-[0_24px_50px_-26px_rgba(58,123,191,0.65)]">
+            <h3 className="text-xl font-semibold text-white">제출이 완료되었습니다</h3>
+            <p className="mt-2 text-sm text-foreground/75">
+              문의 주셔서 감사합니다. 확인 후 빠르게 답변드리겠습니다.
+            </p>
+            <div className="mt-5 flex items-center justify-center">
               <Link
-                href="/pricing"
-                className="liquid-glass rounded-full px-5 py-3 text-sm text-foreground hover:bg-white/5"
+                href="/contact"
+                className="cursor-pointer rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
               >
-                요금제 확인하기
+                확인
               </Link>
             </div>
           </div>
         </div>
-      </section>
+      ) : null}
     </main>
   )
 }

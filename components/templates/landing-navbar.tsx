@@ -51,19 +51,11 @@ export function LandingNavbar({ currentPath = "/" }: LandingNavbarProps) {
 
               <Link href="/" className="absolute left-1/2 -translate-x-1/2 shrink-0 md:static md:translate-x-0">
                 <Image
-                  src="/images/logo_black.png"
-                  alt="Stroom 로고"
-                  width={180}
-                  height={52}
-                  className="h-7 w-auto dark:hidden sm:h-8"
-                  priority
-                />
-                <Image
                   src="/images/logo.png"
                   alt="Stroom 로고"
                   width={180}
                   height={52}
-                  className="hidden h-7 w-auto dark:block sm:h-8"
+                  className="h-7 w-auto sm:h-8"
                   priority
                 />
               </Link>

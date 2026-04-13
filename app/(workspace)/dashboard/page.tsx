@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { TradeOnboardingPopup } from "@/components/organisms/trade-onboarding-popup";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeRecord } from "@/types/trade";
 import { getReturnRateFromTrade } from "@/utils/trade-metrics";
@@ -52,6 +53,9 @@ function getMonthKey(dateText: string) {
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const [tradesResponse, overridesResponse] = await Promise.all([
     supabase
       .from("trades")
@@ -178,6 +182,7 @@ export default async function DashboardPage() {
 
   return (
     <section className="space-y-4">
+      {user ? <TradeOnboardingPopup userId={user.id} /> : null}
       <header className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm dark:border-zinc-800 dark:bg-[#0d1014] dark:shadow-[0_12px_40px_-20px_rgba(0,0,0,0.7)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>

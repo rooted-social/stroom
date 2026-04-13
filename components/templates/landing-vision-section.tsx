@@ -58,10 +58,10 @@ export function LandingVisionSection() {
         </p>
 
         <Link
-          href="/login"
+          href="/waitinglist"
           className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-7 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 sm:px-8 sm:py-3.5 sm:text-base"
         >
-          지금 바로 시작하기
+          지금 대기 등록하기
         </Link>
       </div>
     </section>

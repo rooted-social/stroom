@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 
 import { SubmitButton } from "@/components/atoms/submit-button";
+import { INVALID_BETA_CODE_MESSAGE, isValidBetaCode } from "@/lib/auth/beta-code";
 
 type SignupFormProps = {
   action: (formData: FormData) => void | Promise<void>;
@@ -17,6 +18,8 @@ export function SignupForm({ action }: SignupFormProps) {
   const [checkState, setCheckState] = useState<UsernameCheckState>("idle");
   const [checkMessage, setCheckMessage] = useState("");
   const [confirmedUsername, setConfirmedUsername] = useState("");
+  const [betaCode, setBetaCode] = useState("");
+  const [betaCodeError, setBetaCodeError] = useState("");
 
   const normalizedUsername = useMemo(
     () => username.trim().toLowerCase(),
@@ -27,6 +30,7 @@ export function SignupForm({ action }: SignupFormProps) {
     checkState === "available" &&
     normalizedUsername.length > 0 &&
     normalizedUsername === confirmedUsername;
+  const isBetaCodeMatched = isValidBetaCode(betaCode);
 
   async function handleCheckUsername() {
     if (!usernamePattern.test(normalizedUsername)) {
@@ -83,8 +87,25 @@ export function SignupForm({ action }: SignupFormProps) {
     }
   }
 
+  function handleBetaCodeChange(value: string) {
+    setBetaCode(value);
+    if (betaCodeError) {
+      setBetaCodeError("");
+    }
+  }
+
+  function handleSignupSubmit(event: FormEvent<HTMLFormElement>) {
+    if (isValidBetaCode(betaCode)) {
+      setBetaCodeError("");
+      return;
+    }
+
+    event.preventDefault();
+    setBetaCodeError(INVALID_BETA_CODE_MESSAGE);
+  }
+
   return (
-    <form action={action} className="space-y-3">
+    <form action={action} className="space-y-3" onSubmit={handleSignupSubmit}>
       <label className="block space-y-1">
         <span className="text-sm text-foreground/78">이름</span>
         <input
@@ -169,15 +190,28 @@ export function SignupForm({ action }: SignupFormProps) {
           placeholder="you@example.com"
         />
       </label>
+      <label className="block space-y-1">
+        <span className="text-sm text-foreground/78">베타 코드</span>
+        <input
+          name="betaCode"
+          type="text"
+          required
+          value={betaCode}
+          onChange={(event) => handleBetaCodeChange(event.target.value)}
+          className="h-10 w-full rounded-lg border border-white/12 bg-white/[0.03] px-3 text-sm text-foreground placeholder:text-foreground/40 outline-none focus-visible:border-[#6EA9DD]/60 focus-visible:ring-2 focus-visible:ring-[#6EA9DD]/25"
+          placeholder="베타 코드를 입력해주세요"
+        />
+      </label>
+      {betaCodeError ? <p className="text-xs text-rose-600">{betaCodeError}</p> : null}
       <SubmitButton
         label="회원가입"
         pendingLabel="계정 생성 중..."
         className="w-full !border-transparent !bg-gradient-to-r !from-[#6EA9DD] !to-[#3A7BBF] !text-white hover:opacity-90"
-        disabled={!isConfirmed}
+        disabled={!isConfirmed || !isBetaCodeMatched}
       />
-      {!isConfirmed ? (
+      {!isConfirmed || !isBetaCodeMatched ? (
         <p className="text-xs text-foreground/58">
-          회원가입 전에 아이디 중복 확인을 완료해주세요.
+          회원가입 전에 아이디 중복 확인과 베타 코드 확인을 완료해주세요.
         </p>
       ) : null}
     </form>

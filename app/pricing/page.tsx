@@ -6,7 +6,7 @@ const plans = [
   {
     name: "Pro",
     originalPrice: "₩33,000",
-    price: "₩19,000",
+    price: "₩14,900",
     unit: "/월",
     description: "실전 트레이더를 위한 분석 중심 단일 플랜",
     features: ["무제한 매매 기록", "시나리오 매매", "성과 및 수익 분석", "사용자 설정 체크리스트"],
@@ -70,10 +70,10 @@ export default async function PricingPage() {
 
           <div className="mt-10 text-center">
             <Link
-              href="/signup"
+              href="/waitinglist"
               className="rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
             >
-              무료로 시작하기
+              웨이팅리스트 등록하기
             </Link>
           </div>
         </div>
