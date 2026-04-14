@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { loginAction } from "@/app/(auth)/actions";
 import { FeedbackAlert } from "@/components/atoms/feedback-alert";
+import { GaEventOnMount } from "@/components/analytics/ga-event-on-mount";
 import { SubmitButton } from "@/components/atoms/submit-button";
 
 type LoginPageProps = {
@@ -10,14 +11,16 @@ type LoginPageProps = {
     success?: string;
     successTitle?: string;
     successDescription?: string;
+    ga_signup?: string;
   }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { error, success, successTitle, successDescription } = await searchParams;
+  const { error, success, successTitle, successDescription, ga_signup } = await searchParams;
 
   return (
     <main className="space-y-6 text-foreground">
+      <GaEventOnMount eventName="sign_up" enabled={ga_signup === "1"} queryParamToRemove="ga_signup" />
       <header className="space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
         <p className="text-sm text-foreground/70">

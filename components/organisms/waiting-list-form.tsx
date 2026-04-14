@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type FormEvent, useState } from "react";
 
 import type { WaitingListFieldErrors, WaitingListPayload } from "@/types/waiting-list";
@@ -10,13 +11,14 @@ import {
 
 const initialFormValues: WaitingListPayload = {
   name: "",
-  phone: "",
   email: "",
 };
 
 export function WaitingListForm() {
   const [values, setValues] = useState<WaitingListPayload>(initialFormValues);
+  const [isPrivacyPolicyAgreed, setIsPrivacyPolicyAgreed] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<WaitingListFieldErrors>({});
+  const [privacyPolicyError, setPrivacyPolicyError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -42,6 +44,12 @@ export function WaitingListForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isPrivacyPolicyAgreed) {
+      setPrivacyPolicyError("개인정보처리방침 동의가 필요합니다.");
+      return;
+    }
+
+    setPrivacyPolicyError("");
 
     const normalizedPayload = normalizeWaitingListPayload(values);
     const validationResult = validateWaitingListPayload(normalizedPayload);
@@ -76,6 +84,8 @@ export function WaitingListForm() {
 
       setValues(initialFormValues);
       setFieldErrors({});
+      setIsPrivacyPolicyAgreed(false);
+      setPrivacyPolicyError("");
       setSubmitError("");
       setIsCompleteModalOpen(true);
     } catch {
@@ -88,7 +98,9 @@ export function WaitingListForm() {
   function handleConfirmComplete() {
     setIsCompleteModalOpen(false);
     setValues(initialFormValues);
+    setIsPrivacyPolicyAgreed(false);
     setFieldErrors({});
+    setPrivacyPolicyError("");
     setSubmitError("");
   }
 
@@ -109,19 +121,6 @@ export function WaitingListForm() {
         </label>
 
         <label className="block space-y-1.5">
-          <span className="text-sm text-foreground/85">연락처</span>
-          <input
-            name="phone"
-            required
-            value={values.phone}
-            onChange={(event) => updateField("phone", event.target.value)}
-            className="h-11 w-full rounded-xl border border-white/20 bg-black/20 px-3 text-sm text-white outline-none ring-0 transition placeholder:text-foreground/45 focus:border-[#6EA9DD]/60"
-            placeholder="010-1234-5678"
-          />
-          {fieldErrors.phone ? <p className="text-xs text-rose-300">{fieldErrors.phone}</p> : null}
-        </label>
-
-        <label className="block space-y-1.5">
           <span className="text-sm text-foreground/85">이메일 주소</span>
           <input
             name="email"
@@ -135,6 +134,36 @@ export function WaitingListForm() {
           {fieldErrors.email ? <p className="text-xs text-rose-300">{fieldErrors.email}</p> : null}
         </label>
 
+        <div className="space-y-1.5 rounded-xl border border-white/15 bg-black/15 px-3 py-2.5">
+          <label htmlFor="privacy-policy-consent" className="flex cursor-pointer items-start gap-2.5">
+            <input
+              id="privacy-policy-consent"
+              name="privacyPolicyConsent"
+              type="checkbox"
+              checked={isPrivacyPolicyAgreed}
+              onChange={(event) => {
+                setIsPrivacyPolicyAgreed(event.target.checked);
+                if (event.target.checked) {
+                  setPrivacyPolicyError("");
+                }
+              }}
+              className="mt-0.5 h-4 w-4 rounded border-white/35 bg-black/20 accent-[#6EA9DD]"
+            />
+            <span className="text-sm text-foreground/85">
+              <Link
+                href="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 transition-colors hover:text-[#B6DCFA]"
+              >
+                개인정보처리방침
+              </Link>
+              에 동의합니다. (필수)
+            </span>
+          </label>
+          {privacyPolicyError ? <p className="text-xs text-rose-300">{privacyPolicyError}</p> : null}
+        </div>
+
         {submitError ? (
           <p className="rounded-xl border border-rose-300/60 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
             {submitError}
@@ -145,9 +174,12 @@ export function WaitingListForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="cursor-pointer rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full border border-[#9BC9EE]/55 bg-[linear-gradient(128deg,#79B7EA_0%,#3A7BBF_58%,#2E639B_100%)] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_34px_-18px_rgba(58,123,191,0.95)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#B6DCFA]/75 hover:shadow-[0_24px_46px_-18px_rgba(58,123,191,1)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "등록 중..." : "웨이팅리스트 등록하기"}
+            <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0))]" />
+            <span className="relative">
+              {isSubmitting ? "등록 중..." : "웨이팅리스트 등록하기"}
+            </span>
           </button>
         </div>
       </form>

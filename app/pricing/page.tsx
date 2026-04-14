@@ -68,12 +68,16 @@ export default async function PricingPage() {
             ))}
           </div>
 
+          <p className="mt-5 text-center text-sm font-medium text-foreground/100 sm:text-base">
+            서비스 대기 등록 후, 무료 체험이 가능해요!
+          </p>
+
           <div className="mt-10 text-center">
             <Link
               href="/waitinglist"
-              className="rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
+              className="inline-flex items-center justify-center rounded-full border border-white/35 bg-gradient-to-r from-[#79B4E8] via-[#5C97D3] to-[#3A7BBF] px-7 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_-16px_rgba(58,123,191,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_44px_-16px_rgba(58,123,191,0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8EC5F0]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              웨이팅리스트 등록하기
+              지금 대기 등록하기
             </Link>
           </div>
         </div>

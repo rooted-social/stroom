@@ -8,15 +8,16 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const WAITING_LIST_ERROR_MESSAGE = {
   requiredName: "이름을 입력해주세요.",
-  requiredPhone: "연락처를 입력해주세요.",
   requiredEmail: "이메일 주소를 입력해주세요.",
   invalidEmail: "올바른 이메일 형식을 입력해주세요.",
 } as const;
 
 export function normalizeWaitingListPayload(payload: Partial<WaitingListPayload>): WaitingListPayload {
+  const normalizedPhone = String(payload.phone ?? "").trim();
+
   return {
     name: String(payload.name ?? "").trim(),
-    phone: String(payload.phone ?? "").trim(),
+    phone: normalizedPhone ? normalizedPhone : undefined,
     email: String(payload.email ?? "")
       .trim()
       .toLowerCase(),
@@ -28,10 +29,6 @@ export function validateWaitingListPayload(payload: WaitingListPayload): Waiting
 
   if (!payload.name) {
     fieldErrors.name = WAITING_LIST_ERROR_MESSAGE.requiredName;
-  }
-
-  if (!payload.phone) {
-    fieldErrors.phone = WAITING_LIST_ERROR_MESSAGE.requiredPhone;
   }
 
   if (!payload.email) {

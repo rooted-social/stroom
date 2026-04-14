@@ -227,7 +227,7 @@ create index if not exists idx_user_journal_settings_user_id
 create table if not exists public.waiting_list (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 1 and 80),
-  phone text not null check (char_length(phone) between 1 and 30),
+  phone text check (phone is null or char_length(phone) <= 30),
   email text not null check (position('@' in email) > 1),
   created_at timestamptz not null default timezone('utc', now())
 );

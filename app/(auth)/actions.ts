@@ -10,7 +10,7 @@ function getErrorRedirect(pathname: "/login" | "/signup", message: string) {
 }
 
 function getSignupSuccessRedirect() {
-  return `/login?successTitle=${encodeURIComponent("회원가입이 완료되었습니다.")}&successDescription=${encodeURIComponent("서비스 이용을 위하여 인증 메일을 확인해주세요!")}`;
+  return `/login?successTitle=${encodeURIComponent("회원가입이 완료되었습니다.")}&successDescription=${encodeURIComponent("서비스 이용을 위하여 인증 메일을 확인해주세요!")}&ga_signup=1`;
 }
 
 function normalizeUsername(value: string) {
@@ -113,7 +113,7 @@ export async function loginAction(formData: FormData) {
     );
   }
 
-  redirect("/dashboard");
+  redirect("/dashboard?ga_login=1");
 }
 
 export async function signupAction(formData: FormData) {

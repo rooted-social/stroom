@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Noto_Sans_KR, Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+import { GaPageTracker } from "@/components/analytics/ga-page-tracker";
+import { getGaMeasurementId } from "@/lib/analytics/gtag";
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ["latin"],
@@ -29,12 +32,34 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaMeasurementId = getGaMeasurementId();
+
   return (
     <html
       lang="ko"
       className={`dark h-full antialiased ${notoSansKr.variable} ${spaceGrotesk.variable}`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {gaMeasurementId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', '${gaMeasurementId}', { send_page_view: false });
+              `}
+            </Script>
+          </>
+        ) : null}
+        <GaPageTracker />
+        {children}
+      </body>
     </html>
   );
 }

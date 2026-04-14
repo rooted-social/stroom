@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { GaEventOnMount } from "@/components/analytics/ga-event-on-mount";
 import { TradeOnboardingPopup } from "@/components/organisms/trade-onboarding-popup";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeRecord } from "@/types/trade";
@@ -51,7 +52,14 @@ function getMonthKey(dateText: string) {
   return dateText.slice(0, 7);
 }
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{
+    ga_login?: string;
+  }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const { ga_login } = await searchParams;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -182,6 +190,8 @@ export default async function DashboardPage() {
 
   return (
     <section className="space-y-4">
+      <GaEventOnMount eventName="view_dashboard" />
+      <GaEventOnMount eventName="login" enabled={ga_login === "1"} queryParamToRemove="ga_login" />
       {user ? <TradeOnboardingPopup userId={user.id} /> : null}
       <header className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm dark:border-zinc-800 dark:bg-[#0d1014] dark:shadow-[0_12px_40px_-20px_rgba(0,0,0,0.7)]">
         <div className="flex flex-wrap items-start justify-between gap-3">

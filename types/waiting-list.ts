@@ -1,6 +1,6 @@
 export type WaitingListPayload = {
   name: string;
-  phone: string;
+  phone?: string;
   email: string;
 };
 

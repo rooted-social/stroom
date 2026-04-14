@@ -19,18 +19,23 @@ export default function WaitingListPage() {
             </p>
           </header>
 
-          <section className="relative mx-auto mt-10 w-full max-w-2xl rounded-3xl p-6 liquid-glass sm:p-8">
-            <div className="mb-5 text-center">
-              <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Beta Access</p>
-              <h2 className="mt-2 text-2xl font-semibold text-hero-heading">대기 명단 등록</h2>
-            </div>
-            <WaitingListForm />
-            <div className="mt-6 rounded-2xl border border-[#6EA9DD]/40 bg-[linear-gradient(135deg,rgba(110,169,221,0.18),rgba(58,123,191,0.1))] px-4 py-3 text-center shadow-[0_20px_40px_-28px_rgba(58,123,191,0.7)]">
-              <p className="text-sm font-medium tracking-tight text-[#D9ECFF] sm:text-base">
-                4월 중, 베타 서비스 오픈 소식을 대기자 분들에게 먼저 알려드릴게요.
-              </p>
+          <section className="relative mx-auto mt-10 w-full max-w-2xl">
+            <div className="pointer-events-none absolute -inset-x-5 -inset-y-8 -z-10 rounded-[2rem] bg-[radial-gradient(circle_at_50%_30%,rgba(110,169,221,0.33),transparent_64%)] blur-2xl" />
+            <div className="pointer-events-none absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[radial-gradient(circle,rgba(58,123,191,0.34),transparent_72%)] blur-3xl" />
+            <div className="relative rounded-3xl p-6 liquid-glass sm:p-8">
+              <div className="mb-5 text-center">
+                <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Beta Access</p>
+                <h2 className="mt-2 text-2xl font-semibold text-hero-heading">대기 명단 등록</h2>
+              </div>
+              <WaitingListForm />
             </div>
           </section>
+
+          <div className="mx-auto mt-4 w-full max-w-2xl text-center">
+            <p className="inline-flex items-center rounded-full border border-[#6EA9DD]/45 bg-[linear-gradient(135deg,rgba(110,169,221,0.17),rgba(58,123,191,0.08))] px-4 py-2 text-sm font-medium tracking-tight text-[#D9ECFF] shadow-[0_16px_34px_-26px_rgba(58,123,191,0.8)] sm:text-base">
+              ※ 추후 등록된 이메일로 회원가입 코드가 발송될 예정입니다.
+            </p>
+          </div>
         </div>
       </section>
     </main>
