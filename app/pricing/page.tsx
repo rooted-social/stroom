@@ -69,7 +69,8 @@ export default async function PricingPage() {
           </div>
 
           <p className="mt-5 text-center text-sm font-medium text-foreground/100 sm:text-base">
-            서비스 대기 등록 후, 무료 체험이 가능해요!
+          현재는 베타 테스트 기간이며, 무료로 서비스 이용이 가능합니다. <br />
+            정식 출시 후, 유료로 변환될 예정입니다.
           </p>
 
           <div className="mt-10 text-center">

@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import sharp from "sharp";
 
+import { requirePlanCapability } from "@/lib/plan-access/guards";
+import { PLAN_WRITE_REQUIRED_MESSAGE } from "@/lib/plan-access/messages";
 import { deleteR2Object, uploadR2Object, buildR2PublicUrl } from "@/lib/r2/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeImage, type TradeImageOwnerType } from "@/types/trade-image";
@@ -18,17 +20,24 @@ const allowedImageTypes = new Set(["image/jpeg", "image/jpg", "image/png", "imag
 const maxImagePerTrade = 3;
 const maxImageSizeBytes = 10 * 1024 * 1024;
 
-async function getCurrentUserId() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+async function requireScenarioOrJournalWriteAccess(mode: TradeRecordMode, redirectTo: string) {
+  const capability = mode === "pre" ? "scenario:write" : "journal:write";
+  const message =
+    mode === "pre"
+      ? "현재 플랜에서는 시나리오 작성 기능을 사용할 수 없습니다."
+      : "현재 플랜에서는 매매일지 작성 기능을 사용할 수 없습니다.";
 
-  if (!user) {
-    redirect("/login");
-  }
+  return requirePlanCapability(capability, {
+    redirectTo,
+    deniedMessage: message,
+  });
+}
 
-  return user.id;
+async function requirePerformanceWriteAccess(redirectTo: string) {
+  return requirePlanCapability("performance:write", {
+    redirectTo,
+    deniedMessage: "현재 플랜에서는 수익 및 성과 등록 기능을 사용할 수 없습니다.",
+  });
 }
 
 function getValidMode(value: string): TradeRecordMode {
@@ -190,11 +199,15 @@ async function removeTradeImages(params: { userId: string; imageIds: string[] })
 }
 
 export async function createTradeAction(formData: FormData) {
-  const userId = await getCurrentUserId();
+  const mode = getValidMode(String(formData.get("mode") ?? "pre"));
+  const capability = mode === "pre" ? "scenario:write" : "journal:write";
+  const { userId } = await requirePlanCapability(capability, {
+    redirectTo: `/trades/new?mode=${mode}`,
+    deniedMessage: PLAN_WRITE_REQUIRED_MESSAGE,
+  });
   const supabase = await createSupabaseServerClient();
   const uploadedFiles = getUploadedImageFiles(formData);
 
-  const mode = getValidMode(String(formData.get("mode") ?? "pre"));
   const status = getValidStatus(String(formData.get("status") ?? "draft"));
   const symbol = String(formData.get("symbol") ?? "").trim().toUpperCase();
   const tradeDate = String(formData.get("tradeDate") ?? "").trim();
@@ -321,7 +334,8 @@ export async function createTradeAction(formData: FormData) {
 }
 
 export async function updateTradeAction(formData: FormData) {
-  const userId = await getCurrentUserId();
+  const mode = getValidMode(String(formData.get("mode") ?? "pre"));
+  const { userId } = await requireScenarioOrJournalWriteAccess(mode, "/trades");
   const supabase = await createSupabaseServerClient();
   const uploadedFiles = getUploadedImageFiles(formData);
   const removeImageIds = formData
@@ -334,7 +348,6 @@ export async function updateTradeAction(formData: FormData) {
     .filter(Boolean);
 
   const tradeId = String(formData.get("tradeId") ?? "").trim();
-  const mode = getValidMode(String(formData.get("mode") ?? "pre"));
   const status = getValidStatus(String(formData.get("status") ?? "draft"));
   const symbol = String(formData.get("symbol") ?? "").trim().toUpperCase();
   const tradeDate = String(formData.get("tradeDate") ?? "").trim();
@@ -499,7 +512,10 @@ export async function updateTradeAction(formData: FormData) {
 }
 
 export async function deleteTradeAction(formData: FormData) {
-  const userId = await getCurrentUserId();
+  const { userId } = await requirePlanCapability("journal:write", {
+    redirectTo: "/trades",
+    deniedMessage: "현재 플랜에서는 매매일지 삭제 기능을 사용할 수 없습니다.",
+  });
   const supabase = await createSupabaseServerClient();
 
   const tradeId = String(formData.get("tradeId") ?? "").trim();
@@ -538,7 +554,10 @@ export async function deleteTradeAction(formData: FormData) {
 }
 
 export async function duplicateTradeAction(formData: FormData) {
-  const userId = await getCurrentUserId();
+  const { userId } = await requirePlanCapability("journal:write", {
+    redirectTo: "/trades",
+    deniedMessage: "현재 플랜에서는 매매일지 복제 기능을 사용할 수 없습니다.",
+  });
   const supabase = await createSupabaseServerClient();
 
   const tradeId = String(formData.get("tradeId") ?? "").trim();
@@ -592,7 +611,7 @@ export async function duplicateTradeAction(formData: FormData) {
 }
 
 export async function updateTradeStatusAction(formData: FormData) {
-  const userId = await getCurrentUserId();
+  const { userId } = await requirePerformanceWriteAccess("/trades");
   const supabase = await createSupabaseServerClient();
 
   const tradeId = String(formData.get("tradeId") ?? "").trim();
@@ -620,7 +639,7 @@ export async function updateTradeStatusAction(formData: FormData) {
 }
 
 export async function closePositionFromDetailAction(formData: FormData) {
-  const userId = await getCurrentUserId();
+  const { userId } = await requirePerformanceWriteAccess("/trades");
   const supabase = await createSupabaseServerClient();
 
   const tradeId = String(formData.get("tradeId") ?? "").trim();

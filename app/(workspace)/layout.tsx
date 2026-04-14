@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { type ReactNode } from "react";
 
 import { logoutAction } from "@/app/(auth)/actions";
@@ -6,19 +5,12 @@ import { SubmitButton } from "@/components/atoms/submit-button";
 import { MobileWorkspaceMenu } from "@/components/templates/mobile-workspace-menu";
 import { WorkspaceSidebar } from "@/components/templates/workspace-sidebar";
 import { ThemeToggle } from "@/components/templates/theme-toggle";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireDashboardAccess } from "@/lib/plan-access/guards";
 
 export default async function WorkspaceLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const { user } = await requireDashboardAccess();
 
   const workspaceName = user.user_metadata?.full_name?.trim() || user.email?.split("@")[0] || "member";
 

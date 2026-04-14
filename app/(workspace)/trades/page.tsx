@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { ClipboardList, PenSquare } from "lucide-react";
 
+import { PlanRestrictionPopup } from "@/components/atoms/plan-restriction-popup";
 import { TradesListSkeleton } from "@/components/organisms/trades-list-skeleton";
+import { PLAN_WRITE_REQUIRED_MESSAGE } from "@/lib/plan-access/messages";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeRecord } from "@/types/trade";
 import { linkButtonClass } from "@/utils/button-styles";
@@ -40,6 +42,8 @@ const TRADE_LIST_SELECT_FIELDS = [
 export default async function TradesPage({ searchParams }: TradesPageProps) {
   const { success, error, page } = await searchParams;
   const supabase = await createSupabaseServerClient();
+  const isPlanRestrictionError = error === PLAN_WRITE_REQUIRED_MESSAGE;
+  const popupMessage = isPlanRestrictionError ? PLAN_WRITE_REQUIRED_MESSAGE : null;
 
   const parsedPage = Number(page ?? "1");
   const requestedPage = Number.isFinite(parsedPage) && parsedPage > 0 ? Math.floor(parsedPage) : 1;
@@ -98,6 +102,7 @@ export default async function TradesPage({ searchParams }: TradesPageProps) {
 
   return (
     <section>
+      <PlanRestrictionPopup message={popupMessage} />
       <div className="mb-4 rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm dark:border-zinc-800 dark:bg-[#0d1014] dark:shadow-[0_12px_40px_-20px_rgba(0,0,0,0.7)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -169,7 +174,7 @@ export default async function TradesPage({ searchParams }: TradesPageProps) {
           {success}
         </p>
       ) : null}
-      {error ? (
+      {error && !isPlanRestrictionError ? (
         <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
           {error}
         </p>

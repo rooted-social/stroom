@@ -8,9 +8,11 @@ import {
   updateTradeAction,
 } from "@/app/(workspace)/trades/actions";
 import { PageHeader } from "@/components/atoms/page-header";
+import { PlanRestrictionPopup } from "@/components/atoms/plan-restriction-popup";
 import { TradeImagesField } from "@/components/molecules/trade-images-field";
 import { TradeImageGallery } from "@/components/organisms/trade-image-gallery";
 import { SubmitButton } from "@/components/atoms/submit-button";
+import { PLAN_WRITE_REQUIRED_MESSAGE } from "@/lib/plan-access/messages";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { type TradeImage } from "@/types/trade-image";
 import { type TradeRecord } from "@/types/trade";
@@ -210,9 +212,12 @@ export default async function TradeDetailPage({
   const hasMemo = memoText.length > 0;
   const hasReview = reviewText.length > 0;
   const hasRiskReward = hasMeaningfulValue(riskRewardDisplay);
+  const isPlanRestrictionError = error === PLAN_WRITE_REQUIRED_MESSAGE;
+  const popupMessage = isPlanRestrictionError ? PLAN_WRITE_REQUIRED_MESSAGE : null;
 
   return (
     <section>
+      <PlanRestrictionPopup message={popupMessage} />
       <PageHeader
         title={`Trade History`}
         description={
@@ -271,7 +276,7 @@ export default async function TradeDetailPage({
           {success}
         </p>
       ) : null}
-      {error ? (
+      {error && !isPlanRestrictionError ? (
         <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
           {error}
         </p>

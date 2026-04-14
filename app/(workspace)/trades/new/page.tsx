@@ -2,9 +2,11 @@ import Link from "next/link";
 
 import { createTradeAction } from "@/app/(workspace)/trades/actions";
 import { PageHeader } from "@/components/atoms/page-header";
+import { PlanRestrictionPopup } from "@/components/atoms/plan-restriction-popup";
 import { TradeImagesField } from "@/components/molecules/trade-images-field";
 import { ScenarioChecklistField } from "@/components/molecules/scenario-checklist-field";
 import { SubmitButton } from "@/components/atoms/submit-button";
+import { PLAN_WRITE_REQUIRED_MESSAGE } from "@/lib/plan-access/messages";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { decodeTradeFormMeta } from "@/utils/trade-form";
 import { linkButtonClass } from "@/utils/button-styles";
@@ -50,9 +52,12 @@ export default async function NewTradePage({ searchParams }: NewTradePageProps) 
       ? journalDefaults.major_symbols
       : ["BTC", "ETH", "XRP", "NQ", "ES"];
   const checklistOptions = journalDefaults?.scenario_checklists ?? [];
+  const isPlanRestrictionError = error === PLAN_WRITE_REQUIRED_MESSAGE;
+  const popupMessage = isPlanRestrictionError ? PLAN_WRITE_REQUIRED_MESSAGE : null;
 
   return (
     <section>
+      <PlanRestrictionPopup message={popupMessage} />
       <PageHeader
         title={modeTitle}
         titleEn={normalizedMode === "pre" ? "Scenario Entry" : "Journal Entry"}
@@ -63,7 +68,7 @@ export default async function NewTradePage({ searchParams }: NewTradePageProps) 
           </Link>
         }
       />
-      {error ? (
+      {error && !isPlanRestrictionError ? (
         <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
           {error}
         </p>
