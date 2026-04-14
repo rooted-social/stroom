@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_KR, Space_Grotesk } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import { GaPageTracker } from "@/components/analytics/ga-page-tracker";
 import { getGaMeasurementId } from "@/lib/analytics/gtag";
@@ -57,7 +58,9 @@ export default function RootLayout({
             </Script>
           </>
         ) : null}
-        <GaPageTracker />
+        <Suspense fallback={null}>
+          <GaPageTracker />
+        </Suspense>
         {children}
       </body>
     </html>
