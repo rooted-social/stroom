@@ -35,6 +35,10 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
 
           <ScrollReveal delayMs={130}>
             <section className="relative mx-auto mt-10 w-full max-w-3xl liquid-glass rounded-3xl p-6 sm:p-8">
+              <div className="pointer-events-none absolute -left-10 -top-14 -z-10 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(110,169,221,0.28),transparent_72%)] blur-2xl" />
+              <div className="pointer-events-none absolute -right-8 -bottom-16 -z-10 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(58,123,191,0.22),transparent_72%)] blur-3xl" />
+              <div className="pointer-events-none absolute inset-x-10 top-0 -z-10 h-28 bg-[radial-gradient(circle_at_top,rgba(122,186,240,0.2),transparent_75%)] blur-2xl" />
+
               <div className="mb-5 text-center">
                 <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Inquiry Form</p>
                 <h2 className="mt-2 text-2xl font-semibold text-hero-heading">문의사항</h2>

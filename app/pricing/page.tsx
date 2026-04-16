@@ -75,7 +75,7 @@ export default async function PricingPage() {
 
           <ScrollReveal delayMs={220}>
             <p className="mt-5 text-center text-sm font-medium text-foreground/100 sm:text-base">
-            현재는 베타 테스트 기간이며, 무료로 서비스 이용이 가능합니다. <br />
+            현재는 베타 테스트 기간이며, 무료 서비스 이용이 가능합니다. <br />
               정식 출시 후, 유료로 변환될 예정입니다.
             </p>
           </ScrollReveal>
@@ -83,10 +83,10 @@ export default async function PricingPage() {
           <ScrollReveal delayMs={300}>
             <div className="mt-10 text-center">
               <Link
-                href="/waitinglist"
+                href="/signup"
                 className="inline-flex items-center justify-center rounded-full border border-white/35 bg-gradient-to-r from-[#79B4E8] via-[#5C97D3] to-[#3A7BBF] px-7 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_-16px_rgba(58,123,191,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_44px_-16px_rgba(58,123,191,0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8EC5F0]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                지금 대기 등록하기
+                무료로 시작하기
               </Link>
             </div>
           </ScrollReveal>

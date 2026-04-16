@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 
-import { INVALID_BETA_CODE_MESSAGE, isValidBetaCode } from "@/lib/auth/beta-code";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function getErrorRedirect(pathname: "/login" | "/signup", message: string) {
@@ -122,9 +121,9 @@ export async function signupAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
   const passwordConfirm = String(formData.get("passwordConfirm") ?? "").trim();
-  const betaCode = String(formData.get("betaCode") ?? "").trim();
+  const privacyPolicyConsent = String(formData.get("privacyPolicyConsent") ?? "").trim();
 
-  if (!fullName || !username || !email || !password || !passwordConfirm || !betaCode) {
+  if (!fullName || !username || !email || !password || !passwordConfirm) {
     redirect(getErrorRedirect("/signup", "모든 항목을 입력해주세요."));
   }
 
@@ -145,8 +144,8 @@ export async function signupAction(formData: FormData) {
     redirect(getErrorRedirect("/signup", "비밀번호 확인이 일치하지 않습니다."));
   }
 
-  if (!isValidBetaCode(betaCode)) {
-    redirect(getErrorRedirect("/signup", INVALID_BETA_CODE_MESSAGE));
+  if (privacyPolicyConsent !== "on") {
+    redirect(getErrorRedirect("/signup", "개인정보처리방침 동의가 필요합니다."));
   }
 
   const supabase = await createSupabaseServerClient();

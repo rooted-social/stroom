@@ -65,10 +65,10 @@ export function LandingVisionSection() {
           </p>
 
           <Link
-            href="/waitinglist"
+            href="/signup"
             className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#6EA9DD] to-[#3A7BBF] px-7 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 sm:px-8 sm:py-3.5 sm:text-base"
           >
-            지금 등록하기
+            무료로 시작하기
           </Link>
         </ScrollReveal>
       </div>

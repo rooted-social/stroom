@@ -6,7 +6,7 @@ const siteUrl =
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
-  const publicRoutes = ["", "/pricing", "/waitinglist", "/contact", "/privacy-policy"]
+  const publicRoutes = ["", "/pricing", "/contact", "/privacy-policy"]
 
   return publicRoutes.map((route, index) => ({
     url: `${siteUrl}${route}`,

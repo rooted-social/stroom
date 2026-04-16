@@ -32,8 +32,8 @@ export async function HeroSection() {
         </p>
 
         <div className="mb-10 mt-8 sm:mb-[66px]">
-          <Link href="/waitinglist" className={heroSecondaryLinkClass}>
-            사전 등록하기
+          <Link href="/signup" className={heroSecondaryLinkClass}>
+            지금 무료로 시작하기
           </Link>
         </div>
       </div>
