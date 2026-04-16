@@ -6,6 +6,10 @@ import "./globals.css";
 import { GaPageTracker } from "@/components/analytics/ga-page-tracker";
 import { getGaMeasurementId } from "@/lib/analytics/gtag";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 const notoSansKr = Noto_Sans_KR({
   subsets: ["latin"],
   variable: "--font-main",
@@ -19,8 +23,20 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "스트룸 - 매매일지 및 트레이딩 관리 시스템",
   description: "Trading journal workspace for disciplined traders.",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",

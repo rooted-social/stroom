@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { type ReactNode } from "react";
 
 import { logoutAction } from "@/app/(auth)/actions";
@@ -6,6 +7,13 @@ import { MobileWorkspaceMenu } from "@/components/templates/mobile-workspace-men
 import { WorkspaceSidebar } from "@/components/templates/workspace-sidebar";
 import { ThemeToggle } from "@/components/templates/theme-toggle";
 import { requireDashboardAccess } from "@/lib/plan-access/guards";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function WorkspaceLayout({
   children,
