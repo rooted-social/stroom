@@ -102,7 +102,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const shortWinCount = shortClosedRates.filter((item) => item.rate > 0).length;
   const longWinRate = longClosedRates.length === 0 ? 0 : (longWinCount / longClosedRates.length) * 100;
   const shortWinRate = shortClosedRates.length === 0 ? 0 : (shortWinCount / shortClosedRates.length) * 100;
-  const insightUserName = "회원";
+  const insightUserName = "트레이더";
   const preferredPosition =
     longClosedRates.length === 0 && shortClosedRates.length === 0
       ? null

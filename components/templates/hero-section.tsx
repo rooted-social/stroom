@@ -33,7 +33,7 @@ export async function HeroSection() {
 
         <div className="mb-10 mt-8 sm:mb-[66px]">
           <Link href="/waitinglist" className={heroSecondaryLinkClass}>
-            대기 등록하기
+            사전 등록하기
           </Link>
         </div>
       </div>

@@ -2,6 +2,7 @@ import Link from "next/link"
 
 import { submitContactInquiryAction } from "@/app/contact/actions"
 import { LandingNavbar } from "@/components/templates/landing-navbar"
+import { ScrollReveal } from "@/components/templates/scroll-reveal"
 
 type ContactPageProps = {
   searchParams: Promise<{
@@ -20,21 +21,24 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
 
       <section className="px-4 pb-14 pt-30 sm:px-8 sm:pb-18 sm:pt-36">
         <div className="mx-auto w-full max-w-5xl">
-          <header className="text-center">
-            <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Contact</p>
-            <h1 className="mt-3 font-heading text-3xl tracking-tight text-hero-heading sm:text-4xl">
-              고객 문의
-            </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base">
-              문의 내용을 남겨주시면 확인 후 빠르게 답변드리겠습니다.
-            </p>
-          </header>
+          <ScrollReveal>
+            <header className="text-center">
+              <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Contact</p>
+              <h1 className="mt-3 font-heading text-3xl tracking-tight text-hero-heading sm:text-4xl">
+                고객 문의
+              </h1>
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base">
+                문의 내용을 남겨주시면 확인 후 빠르게 답변드리겠습니다.
+              </p>
+            </header>
+          </ScrollReveal>
 
-          <section className="relative mx-auto mt-10 w-full max-w-3xl liquid-glass rounded-3xl p-6 sm:p-8">
-            <div className="mb-5 text-center">
-              <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Inquiry Form</p>
-              <h2 className="mt-2 text-2xl font-semibold text-hero-heading">문의사항</h2>
-            </div>
+          <ScrollReveal delayMs={130}>
+            <section className="relative mx-auto mt-10 w-full max-w-3xl liquid-glass rounded-3xl p-6 sm:p-8">
+              <div className="mb-5 text-center">
+                <p className="text-xs tracking-[0.16em] text-foreground/55 uppercase">Inquiry Form</p>
+                <h2 className="mt-2 text-2xl font-semibold text-hero-heading">문의사항</h2>
+              </div>
 
             {error ? (
               <p className="mb-4 rounded-xl border border-red-300/60 bg-red-500/10 px-3 py-2 text-sm text-red-100">
@@ -42,7 +46,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
               </p>
             ) : null}
 
-            <form action={submitContactInquiryAction} className="space-y-4">
+              <form action={submitContactInquiryAction} className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="space-y-1.5">
                   <span className="text-sm text-foreground/85">이름</span>
@@ -117,9 +121,10 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
                   제출하기
                 </button>
               </div>
-            </form>
+              </form>
 
-          </section>
+            </section>
+          </ScrollReveal>
         </div>
       </section>
 

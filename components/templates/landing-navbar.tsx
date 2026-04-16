@@ -12,7 +12,7 @@ type LandingNavbarProps = {
 const navItems = [
   { label: "서비스", href: "/#service" },
   { label: "가격", href: "/pricing" },
-  { label: "대기 신청", href: "/waitinglist" },
+  { label: "사전 등록", href: "/waitinglist" },
   { label: "문의", href: "/contact" },
 ]
 
