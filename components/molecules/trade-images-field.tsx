@@ -14,7 +14,7 @@ import { type TradeImage } from "@/types/trade-image";
 import { buildTradeImageProxyUrl } from "@/utils/trade-images";
 
 const MAX_IMAGES = 3;
-const MAX_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
 type TradeImagesFieldProps = {
@@ -82,7 +82,7 @@ export function TradeImagesField({ existingImages = [] }: TradeImagesFieldProps)
 
     const oversize = filtered.find((file) => file.size > MAX_SIZE_BYTES);
     if (oversize) {
-      setErrorMessage("이미지 한 장당 최대 10MB까지 업로드 가능합니다.");
+      setErrorMessage("이미지 한 장당 최대 5MB까지 업로드 가능합니다.");
       return;
     }
 
@@ -167,7 +167,7 @@ export function TradeImagesField({ existingImages = [] }: TradeImagesFieldProps)
           이미지 업로드 (최대 3장)
         </h2>
         <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-          jpg, jpeg, png, webp만 업로드 가능하며 파일당 최대 10MB입니다.
+          jpg, jpeg, png, webp만 업로드 가능하며 파일당 최대 5MB입니다.
         </p>
       </div>
 
@@ -217,7 +217,7 @@ export function TradeImagesField({ existingImages = [] }: TradeImagesFieldProps)
                   alt={image.file_name}
                   width={320}
                   height={180}
-                  className="h-28 w-full object-cover"
+                  className="h-28 w-full bg-zinc-900 object-contain"
                   unoptimized
                 />
                 <button
@@ -266,7 +266,7 @@ export function TradeImagesField({ existingImages = [] }: TradeImagesFieldProps)
                 alt={item.file.name}
                 width={320}
                 height={180}
-                className="h-28 w-full object-cover"
+                className="h-28 w-full bg-zinc-900 object-contain"
                 unoptimized
               />
               <button
