@@ -51,12 +51,13 @@ export function TradeImageGallery({ images }: TradeImageGalleryProps) {
               <div className="absolute left-3 top-3 z-10 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
                 이미지 {index + 1}
               </div>
-              <div className="relative aspect-video w-full overflow-hidden bg-zinc-900">
+              <div className="relative w-full overflow-hidden bg-zinc-900">
                 <Image
                   src={buildTradeImageProxyUrl(image.id, "full")}
                   alt={image.file_name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.015]"
+                  width={1920}
+                  height={1080}
+                  className="h-auto w-full object-contain"
                   loading="lazy"
                   unoptimized
                   sizes="(max-width: 768px) 100vw, 1200px"

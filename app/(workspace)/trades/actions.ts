@@ -17,8 +17,12 @@ import { encodeTradeFormMeta } from "@/utils/trade-form";
 const allowedModes: TradeRecordMode[] = ["pre", "post"];
 const allowedStatuses: TradeRecordStatus[] = ["draft", "open", "closed"];
 const allowedImageTypes = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+const allowedSharpFormats = new Set(["jpeg", "png", "webp"]);
 const maxImagePerTrade = 3;
-const maxImageSizeBytes = 10 * 1024 * 1024;
+const maxImageSizeBytes = 5 * 1024 * 1024;
+const maxImagePixelCount = 40_000_000;
+const fullImageMaxWidth = 1920;
+const thumbImageMaxWidth = 640;
 
 async function requireScenarioOrJournalWriteAccess(mode: TradeRecordMode, redirectTo: string) {
   const capability = mode === "pre" ? "scenario:write" : "journal:write";
@@ -100,6 +104,45 @@ function normalizeFileName(value: string) {
   return cleaned.length > 0 ? cleaned : "image";
 }
 
+function normalizeFileStem(value: string) {
+  return normalizeFileName(value).replace(/\.[a-z0-9]+$/i, "");
+}
+
+function isAllowedSharpFormat(format: string | undefined): format is "jpeg" | "png" | "webp" {
+  return Boolean(format && allowedSharpFormats.has(format));
+}
+
+async function convertToOptimizedImages(fileBuffer: Buffer) {
+  const metadata = await sharp(fileBuffer, { limitInputPixels: maxImagePixelCount }).metadata();
+  if (!isAllowedSharpFormat(metadata.format)) {
+    throw new Error("지원하지 않는 이미지 형식입니다. jpg/jpeg/png/webp만 업로드할 수 있습니다.");
+  }
+
+  const fullBuffer = await sharp(fileBuffer, { limitInputPixels: maxImagePixelCount })
+    .rotate()
+    .resize({
+      width: fullImageMaxWidth,
+      height: fullImageMaxWidth,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 84 })
+    .toBuffer();
+
+  const thumbBuffer = await sharp(fileBuffer, { limitInputPixels: maxImagePixelCount })
+    .rotate()
+    .resize({
+      width: thumbImageMaxWidth,
+      height: thumbImageMaxWidth,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 78 })
+    .toBuffer();
+
+  return { fullBuffer, thumbBuffer };
+}
+
 function getOwnerTypeByMode(mode: TradeRecordMode): TradeImageOwnerType {
   return mode === "pre" ? "scenario" : "tradeJournal";
 }
@@ -133,27 +176,22 @@ async function uploadTradeImage(params: {
     throw new Error("이미지는 jpg/jpeg/png/webp 형식만 업로드할 수 있습니다.");
   }
   if (file.size > maxImageSizeBytes) {
-    throw new Error("이미지 한 장당 최대 10MB까지 업로드 가능합니다.");
+    throw new Error("이미지 한 장당 최대 5MB까지 업로드 가능합니다.");
   }
 
-  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
-  const safeName = normalizeFileName(file.name);
+  const safeName = normalizeFileStem(file.name);
   const token = `${Date.now()}-${randomUUID()}`;
-  const fullKey = `trades/${params.userId}/${params.tradeId}/${token}-${safeName}`;
-  const thumbKey = `trades/${params.userId}/${params.tradeId}/thumb-${token}.${ext === "png" ? "webp" : ext}`;
+  const fullKey = `trades/${params.userId}/${params.tradeId}/${token}-${safeName}-full.webp`;
+  const thumbKey = `trades/${params.userId}/${params.tradeId}/${token}-${safeName}-thumb.webp`;
 
   const fileBuffer = Buffer.from(await file.arrayBuffer());
-  const thumbBuffer = await sharp(fileBuffer)
-    .rotate()
-    .resize({ width: 640, height: 640, fit: "inside", withoutEnlargement: true })
-    .webp({ quality: 82 })
-    .toBuffer();
+  const { fullBuffer, thumbBuffer } = await convertToOptimizedImages(fileBuffer);
 
   await uploadR2Object({
     key: fullKey,
-    body: fileBuffer,
-    contentType: file.type,
-    cacheControl: "public, max-age=86400",
+    body: fullBuffer,
+    contentType: "image/webp",
+    cacheControl: "public, max-age=31536000, immutable",
   });
   await uploadR2Object({
     key: thumbKey,
@@ -172,8 +210,8 @@ async function uploadTradeImage(params: {
     url_full: buildR2PublicUrl(fullKey),
     url_thumb: buildR2PublicUrl(thumbKey),
     file_name: file.name,
-    content_type: file.type,
-    size_bytes: file.size,
+    content_type: "image/webp",
+    size_bytes: fullBuffer.byteLength,
     sort_order: params.sortOrder,
   });
 
