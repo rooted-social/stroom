@@ -6,6 +6,7 @@ const contentSecurityPolicy = [
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
+  "media-src 'self' https://*.cloudfront.net",
   "font-src 'self' data: https:",
   "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://*.r2.cloudflarestorage.com https://*.r2.dev",
   "object-src 'none'",
