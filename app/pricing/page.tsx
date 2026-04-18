@@ -30,7 +30,7 @@ export default async function PricingPage() {
                 단 하나의 실전형 요금제
               </h1>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base">
-                복잡한 플랜 비교 없이, 핵심 기능을 합리적인 가격으로 시작하세요.
+                복잡한 플랜 비교 없이, 핵심 기능을 합리적인 가격으로!
               </p>
             </header>
           </ScrollReveal>
@@ -75,9 +75,12 @@ export default async function PricingPage() {
 
           <ScrollReveal delayMs={220}>
             <p className="mt-5 text-center text-sm font-medium text-foreground/100 sm:text-base">
-            현재는 베타 테스트 기간이며, 무료 서비스 이용이 가능합니다. <br />
-              정식 출시 후, 유료로 변환될 예정입니다.
+              현재는 베타 테스트 기간이며, 무료 서비스 이용이 가능합니다. <br />
+              정식 출시 후, 유료 전환 시 사전에 미리 안내 예정입니다.
             </p>
+            <div className="mx-auto mt-4 flex w-fit items-center justify-center rounded-full border border-[#79B4E8]/60 bg-[#3A7BBF]/15 px-4 py-2 text-xs font-semibold text-[#B7D8F2] shadow-[0_8px_24px_-12px_rgba(58,123,191,0.85)] sm:text-sm">
+              베타 유저 혜택 · 무료 이용권 3개월 지급 예정
+            </div>
           </ScrollReveal>
 
           <ScrollReveal delayMs={300}>
