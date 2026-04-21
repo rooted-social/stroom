@@ -12,9 +12,12 @@ export const config = {
     "/trades/:path*",
     "/reviews/:path*",
     "/settings/:path*",
+    "/account-disabled",
+    "/admin/:path*",
     "/login",
     "/signup",
     "/api/reviews/daily",
     "/api/trades/images/:path*",
+    "/api/admin/:path*",
   ],
 };

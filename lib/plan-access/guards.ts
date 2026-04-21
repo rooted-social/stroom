@@ -31,6 +31,21 @@ export async function requireDashboardAccess(): Promise<AuthenticatedUserContext
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("account_status")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.account_status === "inactive") {
+    redirect("/account-disabled?reason=inactive");
+  }
+
+  if (profile?.account_status === "suspended") {
+    await supabase.auth.signOut();
+    redirect(`/login?error=${encodeURIComponent("현재 운영자에 의해 정지된 계정입니다.")}`);
+  }
+
   const access = await getUserPlanAccess(user.id);
   return { user, userId: user.id, access };
 }
