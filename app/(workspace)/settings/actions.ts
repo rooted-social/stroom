@@ -39,8 +39,21 @@ export async function updateProfileSettingsAction(formData: FormData) {
     redirect(`/settings?error=${encodeURIComponent(error.message)}`);
   }
 
+  const { error: authUpdateError } = await supabase.auth.updateUser({
+    data: {
+      ...user.user_metadata,
+      full_name: fullName,
+    },
+  });
+
+  if (authUpdateError) {
+    redirect(`/settings?error=${encodeURIComponent(authUpdateError.message)}`);
+  }
+
   revalidatePath("/settings");
   revalidatePath("/dashboard");
+  revalidatePath("/trades");
+  revalidatePath("/reviews");
   redirect(`/settings?success=${encodeURIComponent("프로필 설정을 저장했습니다.")}`);
 }
 

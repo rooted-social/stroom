@@ -112,6 +112,27 @@ export async function loginAction(formData: FormData) {
     );
   }
 
+  const {
+    data: { user: signedInUser },
+  } = await supabase.auth.getUser();
+  if (signedInUser) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("account_status")
+      .eq("id", signedInUser.id)
+      .maybeSingle();
+
+    if (profile?.account_status === "suspended") {
+      await supabase.auth.signOut();
+      redirect(getErrorRedirect("/login", "현재 운영자에 의해 정지된 계정입니다."));
+    }
+
+    await supabase
+      .from("profiles")
+      .update({ last_login_at: new Date().toISOString() })
+      .eq("id", signedInUser.id);
+  }
+
   redirect("/dashboard?ga_login=1");
 }
 

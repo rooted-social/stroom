@@ -7,6 +7,7 @@ import { MobileWorkspaceMenu } from "@/components/templates/mobile-workspace-men
 import { WorkspaceSidebar } from "@/components/templates/workspace-sidebar";
 import { ThemeToggle } from "@/components/templates/theme-toggle";
 import { requireDashboardAccess } from "@/lib/plan-access/guards";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   robots: {
@@ -19,8 +20,19 @@ export default async function WorkspaceLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const { user } = await requireDashboardAccess();
+  const supabase = await createSupabaseServerClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, username")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  const workspaceName = user.user_metadata?.full_name?.trim() || user.email?.split("@")[0] || "member";
+  const workspaceName =
+    profile?.full_name?.trim() ||
+    profile?.username?.trim() ||
+    user.user_metadata?.full_name?.trim() ||
+    user.email?.split("@")[0] ||
+    "member";
 
   return (
     <div className="min-h-screen bg-[#f5f6f8] dark:bg-[#090b0d]">
